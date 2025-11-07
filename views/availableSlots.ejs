@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Available Slots</title>
+  <style>
+    body { font-family: Poppins, sans-serif; background: #fafafa; padding: 20px; }
+    h2 { margin-bottom: 10px; }
+    .legend span { padding: 6px 12px; border-radius: 5px; margin-right: 8px; font-size: 14px; }
+    .available { background: #a8e6a3; }
+    .booked { background-color: red; color: white; cursor: not-allowed; }
+    /* .offline { background: #f5d78e; } */
+
+    .slots { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .slot-btn { padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+    .slot-btn.available { background: #4CAF50; color: white; }
+    .slot-btn.booked { background: #f44336; color: white; cursor: not-allowed; }
+    /* .slot-btn.offline { background: #FFD54F; color: black; cursor: not-allowed; } */
+
+    /* 🔴 Animation when a slot is booked (blinks red once) */
+    @keyframes bookedFlash {
+      0% { background-color: #f44336; transform: scale(1); }
+      50% { background-color: #ff7b7b; transform: scale(1.1); }
+      100% { background-color: #f44336; transform: scale(1); }
+    }
+    .flash-booked {
+      animation: bookedFlash 1s ease;
+    }
+  </style>
+</head>
+<body>
+  <h2>Doctor: <%= doctor.name %> (<%= doctor.department %>)</h2>
+  <div class="legend">
+    <span class="available">Available</span>
+    <span class="booked">Booked</span>
+  </div>
+
+  <% availableDays.forEach(day => { %>
+    <h3><%= day.date %></h3>
+    <div class="slots">
+      <!-- <% day.slots.forEach(slot => { %>
+        <button 
+          id="slot-<%= day.date.replace(/-/g, '') %>-<%= slot.time.replace(/[: ]/g, '') %>"
+          class="slot-btn <%= slot.booked ? 'booked' : slot.offline ? 'offline' : 'available' %>"
+          <%= slot.booked || slot.offline ? 'disabled' : '' %>
+          onclick="bookSlot('<%= doctor.department %>', '<%= day.date %>', '<%= slot.time %>')">
+          <%= slot.time %>
+        </button>
+      <% }) %> -->
+      <% day.slots.forEach(slot => { %>
+  <button 
+    class="slot-btn <%= slot.booked ? 'booked' : 'available' %>"
+    <%= slot.booked ? 'disabled' : '' %>
+    onclick="bookSlot('<%= doctor.department %>', '<%= day.date %>', '<%= slot.time %>')">
+    <%= slot.time %>
+  </button>
+<% }) %>
+
+    </div>
+    <hr>
+  <% }) %>
+
+  <!-- ✅ Include Socket.io client -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    // 🔴 Real-time slot update listener
+    socket.on('slotBooked', (data) => {
+      const currentDoctorId = "<%= doctor._id %>";
+
+      if (data.doctorId === currentDoctorId) {
+        const normalizedTime = data.timeSlot.trim().toUpperCase();
+        const btnId = `slot-${data.date.replace(/-/g, '')}-${data.timeSlot.replace(/[: ]/g, '')}`;
+        const btn = document.getElementById(btnId);
+
+        if (btn) {
+          btn.classList.remove('available');
+          btn.classList.add('booked', 'flash-booked');
+          btn.disabled = true;
+          btn.innerText = `${data.timeSlot} (Booked)`;
+
+          // remove flash animation class after 1.2s
+          setTimeout(() => btn.classList.remove('flash-booked'), 1200);
+        }
+      }
+    });
+
+    // Booking handler
+    async function bookSlot(department, selectedDate, timeSlot) {
+      const patientId = "<%= patientId %>";
+      if (!patientId) return alert("⚠️ Please log in as a patient.");
+
+      const problem = prompt("Describe your problem:");
+      if (!problem) return alert("Booking cancelled.");
+
+  // ✅ convert timeSlot to uppercase before sending
+    const normalizedTime = timeSlot.toUpperCase();
+
+      const res = await fetch('/book-token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ department, patientId, selectedDate, timeSlot: normalizedTime, mode: 'Online', problem })
+      });
+
+      const data = await res.text();
+      document.open();
+      document.write(data);
+      document.close();
+    }
+  </script>
+</body>
+</html>

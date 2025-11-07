@@ -17,8 +17,20 @@ const ismatch=await bcrypt.compare(password,existingPatient.password);
 if(!ismatch){
   return res.render("login", { error: "Invalid email or password" });
 }
+
+//save datain session after login
+req.session.patientId = existingPatient._id;
+req.session.patientName = existingPatient.name;
+req.session.patientEmail = existingPatient.email;
+
+
 //login success
- return res.send(`welcome ${existingPatient.name} you're logged in`);
+res.render("profile", {
+  name: req.session.patientName,
+  email: req.session.patientEmail,
+  patientId: req.session.patientId,
+  token: req.session.token || null
+});
 
 }
 

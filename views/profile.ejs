@@ -1,13 +1,82 @@
+<!-- views/profile.ejs -->
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <title>Patient Profile</title>
 </head>
 <body>
-<form action="/profile" method="get">
-    
-</form>
+ <h2>Welcome, <%= name %></h2>
+
+<p>
+  Email:
+  <span id="emailText"><%= email %></span>
+  <input type="email" id="emailInput" value="<%= email %>" style="display:none;">
+  <button id="editBtn" onclick="enableEdit()">✏️ Edit</button>
+  <button id="saveBtn" style="display:none;" onclick="saveEmail()">💾 Save</button>
+  <button id="cancelBtn" style="display:none;" onclick="cancelEdit()">❌ Cancel</button>
+</p>
+
+  <h2>Book OPD Token (choose department)</h2>
+  <form action="/get-available-slots" method="GET">
+    <label>Department:</label>
+    <select name="department" required>
+      <option value="">-- Select --</option>
+      <option value="General Medicine">General Medicine</option>
+      <option value="Orthopedic">Orthopedic</option>
+      <option value="ENT">ENT</option>
+      <option value="Cardiology">Cardiology</option>
+    </select>
+    <br><br>
+    <button type="submit">Show Available Slots</button>
+  </form>
+  <hr>
+  <form action="/logout" method="POST">
+    <button type="submit">Logout</button>
+  </form>
+<script>
+function enableEdit() {
+  document.getElementById("emailText").style.display = "none";
+  document.getElementById("emailInput").style.display = "inline-block";
+  document.getElementById("editBtn").style.display = "none";
+  document.getElementById("saveBtn").style.display = "inline-block";
+  document.getElementById("cancelBtn").style.display = "inline-block";
+}
+
+function cancelEdit() {
+  const emailInput = document.getElementById("emailInput");
+  const emailText = document.getElementById("emailText");
+  
+  emailInput.value = emailText.textContent;
+  emailText.style.display = "inline";
+  emailInput.style.display = "none";
+  document.getElementById("editBtn").style.display = "inline-block";
+  document.getElementById("saveBtn").style.display = "none";
+  document.getElementById("cancelBtn").style.display = "none";
+}
+
+async function saveEmail() {
+  const newEmail = document.getElementById("emailInput").value.trim();
+  if (!newEmail || !newEmail.includes("@")) {
+    alert("⚠️ Please enter a valid email address!");
+    return;
+  }
+
+  const res = await fetch("/update-email", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ newEmail })
+  });
+
+  const data = await res.json();
+  alert(data.message);
+
+  if (res.ok) {
+    document.getElementById("emailText").textContent = newEmail;
+    cancelEdit();
+  }
+}
+</script>
+
+
 </body>
 </html>

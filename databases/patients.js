@@ -11,10 +11,9 @@ const patientSchema=new mongoose.Schema({
     gender:String,
     tokenBooked:[
         {
-            tokenNo:Number,
-            date:Date,
-            status:{type:String,default:"active"} // active, completed, cancelled
-        }
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Appointment"
+  }
     ]
 },{timestamps:true});
 
