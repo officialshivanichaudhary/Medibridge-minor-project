@@ -15,6 +15,7 @@ const tokenSchema = new mongoose.Schema({
   estimatedTime: String,   // "09:30", or "09:30 AM"
   problem: String,
   tokenNumber: Number,
+  customToken: String, 
   mode: { type: String, enum: ['Online', 'Offline'], default: 'Online' },
   status: { type: String, default: 'Active' }
 }, { timestamps: true });

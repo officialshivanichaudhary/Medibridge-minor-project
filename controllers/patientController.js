@@ -2,6 +2,7 @@
 const Doctor = require('../databases/Doctor');
 const Token = require('../databases/Token');
 const { addDays, format, addMinutes } = require('date-fns');
+const nodemailer = require("nodemailer");
 
 // helper: format Date -> "YYYY-MM-DD"
 function toDateString(d) {
@@ -62,6 +63,16 @@ exports.getAvailableSlots = async (req, res) => {
       // ❌ Remove offline reserved (every alternate slot)
       slots = slots.filter((_, index) => index % 2 === 0);
 
+// create slot → token map (like D1, D2, D3...)
+const deptPrefix = doctor.department[0].toUpperCase(); // e.g. Dermatology -> D
+const slotTokenMap = {};
+slots.forEach((slot, index) => {
+  slotTokenMap[slot.trim().toUpperCase()] = `${deptPrefix}${index + 1}`;
+});
+
+
+
+
       // find booked tokens for this doctor + date
       const bookedTokens = await Token.find({ 'doctor.id': doctor._id, date: dateStr });
 const bookedTimes = bookedTokens
@@ -92,6 +103,15 @@ const slotStatus = slots.map(slot => ({
     return res.status(500).send('🚫 Failed to load available slots.');
   }
 };
+
+//configure node mailer
+const transporter=nodemailer.createTransport({
+  service:'gmail',
+  auth:{
+    user:'dobhaal2005@gmail.com',
+    pass:'eqrp bivz btry chjm'
+  }
+})
 
 
 // POST /book-token
@@ -155,22 +175,100 @@ exports.bookToken = async (req, res) => {
       return res.render('message', { msg: '⚠️ All slots (online + offline) are filled for this doctor.' });
     }
 
-    // sequential token number per doctor+date
-    const lastToken = await Token.findOne({ 'doctor.id': doctor._id, date: selected }).sort({ tokenNumber: -1 });
-    const nextTokenNo = lastToken ? lastToken.tokenNumber + 1 : 1;
+    // Fetch the last token for this department and date
+const lastToken = await Token.findOne({
+  'doctor.department': doctor.department,
+  date: selected
+}).sort({ createdAt: -1 });
+
 
     const formattedSlot = timeSlot.trim().toUpperCase();
 
+// Generate sequential token number based on time slot order
+const allSlots = [
+  "09:00 AM", "09:20 AM", "09:40 AM",
+  "10:00 AM", "10:20 AM", "10:40 AM",
+  "11:00 AM", "11:20 AM", "11:40 AM",
+  "12:00 PM", "12:20 PM"
+];
+
+let tokenIndex = allSlots.findIndex(
+  s => s.trim().toUpperCase() === formattedSlot
+);
+
+// Default to 1 if not found (just in case)
+const nextNumber = tokenIndex !== -1 ? tokenIndex + 1 : 1;
+
+
+
+
+// Define department-based token prefixes
+const departmentPrefixes = {
+  Cardiology: "C",
+  Dermatology: "D",
+  Orthopedics: "O",
+  Neurology: "N",
+  General: "G",
+  Pediatrics: "P",
+  ENT: "E",
+  Ophthalmology: "OP"
+};
+
+const deptPrefix =
+  departmentPrefixes[doctor.department] ||
+  doctor.department.charAt(0).toUpperCase();
+
+// ✅ Generate custom token like D1, C2, etc.
+const customToken = `${deptPrefix}${nextNumber}`;
+
+
 const newToken = await Token.create({
-  tokenNumber: nextTokenNo,
+  tokenNumber: nextNumber,
+  customToken, // 🔹 Add this field
   doctor: { id: doctor._id, name: doctor.name, department: doctor.department },
   patientId,
   date: selected,
-  timeSlot: formattedSlot,
-  estimatedTime: formattedSlot,
+  timeSlot,
+  estimatedTime: timeSlot,
   mode,
   problem: problem || ''
 });
+
+
+//fetch patient data from database
+const Patient=require('../databases/patients');
+const patient=await Patient.findById(patientId);
+
+console.log("✅ New Token Created:", newToken);
+
+
+if(patient && patient.email){
+  const mailOptions={from:'dobhaal2005@gmail.com',
+to:patient.email,
+subject:'Your OPD Token Confirmation - MediBridge',
+html: `
+      <h2>✅ OPD Token Generated Successfully!</h2>
+      <p><b>Patient:</b> ${patient.name}</p>
+      <p><b>Doctor:</b> ${doctor.name}</p>
+      <p><b>Department:</b> ${doctor.department}</p>
+      <p><b>Token Number:</b> ${newToken.customToken}</p>
+      <p><b>Date:</b> ${selected}</p>
+      <p><b>Time:</b> ${timeSlot}</p>
+      <p><b>Mode:</b> ${mode}</p>
+      <hr>
+      <p>Thank you for booking with MediBridge! Please arrive 10 mins before your slot.</p>
+    `
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`📩 Email sent to ${patient.email}`);
+  } catch (emailErr) {
+    console.error("❌ Failed to send email:", emailErr);
+  }
+}
+
+
 
     // ✅ Normalize slot format to uppercase for frontend consistency
 const normalizedSlot = timeSlot.toUpperCase();
