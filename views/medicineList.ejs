@@ -1,0 +1,41 @@
+<%- include('partials/header') %>
+
+<h3>Medicine Inventory</h3>
+
+<table class="table table-bordered mt-3">
+  <thead class="table-primary">
+    <tr>
+      <th>Name</th>
+      <th>Batch</th>
+      <th>Qty</th>
+      <th>Expiry</th>
+      <th>Status</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% medicines.forEach(med => { %>
+      <tr>
+        <td><%= med.name %></td>
+        <td><%= med.batchNumber %></td>
+        <td><%= med.quantity %></td>
+        <td><%= med.expiryDate.toDateString() %></td>
+        <td>
+          <% if (med.status === 'Expired') { %>
+            <span class="badge bg-danger"><%= med.status %></span>
+          <% } else if (med.status === 'Near Expiry') { %>
+            <span class="badge bg-warning text-dark"><%= med.status %></span>
+          <% } else { %>
+            <span class="badge bg-success"><%= med.status %></span>
+          <% } %>
+        </td>
+        <td>
+          <a href="/medicines/edit/<%= med._id %>" class="btn btn-sm btn-outline-primary">Edit</a>
+          <a href="/medicines/delete/<%= med._id %>" class="btn btn-sm btn-outline-danger">Delete</a>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+
+<%- include('partials/footer') %>
