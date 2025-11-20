@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Message</title>
+  <style>
+    body { font-family: Poppins, sans-serif; background: #f0f0f0; padding: 40px; text-align: center; }
+    .msg-box {
+      background: white;
+      border-radius: 10px;
+      padding: 30px;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="msg-box">
+    <h3><%- msg %></h3>
+    <button onclick="goBack()">Go Back to Slots</button>
+  </div>
+
+  <script>
+    function goBack() {
+      // redirect back to slots with department name
+      const dept = "<%= typeof doctor !== 'undefined' ? doctor.department : 'Cardiology' %>";
+      window.location.href = `/get-available-slots?department=${dept}`;
+    }
+  </script>
+</body>
+</html>
