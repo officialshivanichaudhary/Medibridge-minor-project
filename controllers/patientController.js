@@ -61,9 +61,20 @@ exports.getAvailableSlots = async (req, res) => {
     const today = new Date();
 
     // For next 7 days
-    for (let i = 1; i <= 7; i++) {
+  for (let i = 1; i <= 7; i++) {
       const dayObj = addDays(today, i);
-      const dateStr = toDateString(dayObj);
+      const dateStr = toDateString(dayObj); // YYYY-MM-DD
+
+      // 🔴 Check if doctor is on leave that day
+      const onLeave = await Leave.exists({
+        doctor: doctor._id,
+        date: dateStr
+      });
+
+      if (onLeave) {
+        // is din ke slots hi mat dikhana
+        continue;
+      }
 
       // generate all slots (9:00–12:30)
       let slots = buildSlotsForDay(dayObj, doctor.avgConsultTime || 10);
@@ -71,33 +82,46 @@ exports.getAvailableSlots = async (req, res) => {
       // ❌ Remove offline reserved (every alternate slot)
       slots = slots.filter((_, index) => index % 2 === 0);
 
-// create slot → token map (like D1, D2, D3...)
-const deptPrefix = doctor.department[0].toUpperCase(); // e.g. Dermatology -> D
-const slotTokenMap = {};
-slots.forEach((slot, index) => {
-  slotTokenMap[slot.trim().toUpperCase()] = `${deptPrefix}${index + 1}`;
-});
-
-
-
+      // create slot → token map (like D1, D2, D3...)
+      const deptPrefix = doctor.department[0].toUpperCase(); // e.g. Dermatology -> D
+      const slotTokenMap = {};
+      slots.forEach((slot, index) => {
+        slotTokenMap[slot.trim().toUpperCase()] = `${deptPrefix}${index + 1}`;
+      });
 
       // find booked tokens for this doctor + date
-      const bookedTokens = await Token.find({ 'doctor.id': doctor._id, date: dateStr });
-const bookedTimes = bookedTokens
-  .filter(t => t.timeSlot || t.estimatedTime)
-  .map(t => (t.timeSlot || t.estimatedTime).trim().toUpperCase());
+      const bookedTokens = await Token.find({
+        'doctor.id': doctor._id,
+        date: dateStr
+      });
 
+      const bookedTimes = bookedTokens
+        .filter(t => t.timeSlot || t.estimatedTime)
+        .map(t => (t.timeSlot || t.estimatedTime).trim().toUpperCase());
 
-const slotStatus = slots.map(slot => ({
-  time: slot,
-  booked: bookedTimes.includes(slot.trim().toUpperCase())
-}));
+      const slotStatus = slots.map(slot => ({
+        time: slot,
+        booked: bookedTimes.includes(slot.trim().toUpperCase())
+      }));
 
       availableDays.push({
         date: dateStr,
         slots: slotStatus
       });
     }
+
+    // Render page
+    return res.render('availableSlots', {
+      doctor,
+      availableDays,
+      patientId: req.session.patientId || null
+    });
+
+  } catch (err) {
+    console.error('Error fetching slots:', err);
+    return res.status(500).send('🚫 Failed to load available slots.');
+  }
+};
 
     // Render page
     return res.render('availableSlots', {

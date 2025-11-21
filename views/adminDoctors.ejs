@@ -14,27 +14,30 @@
 <hr>
 
 <h2>Existing Doctors</h2>
-<table border="1" cellpadding="8">
-  <tr>
-    <th>Name</th>
-    <th>Department</th>
-    <th>Max Patients</th>
-    <th>Consult Time</th>
-    <th>Action</th>
-  </tr>
-
-  <% doctors.forEach(d => { %>
+<table>
+  <thead>
     <tr>
-      <td><%= d.name %></td>
-      <td><%= d.department %></td>
-      <td><%= d.maxPatientsPerDay %></td>
-      <td><%= d.avgConsultTime %></td>
-      <td>
-  <a href="/admin/edit-doctor/<%= d._id %>">Edit</a> |
-<a href="/admin/delete-doctor/<%= d._id %>">Delete</a>
-
-</td>
-
+      <th>Name</th>
+      <th>Department</th>
+      <th>Max Patients/Day</th>
+      <th>Avg Consult Time</th>
+      <th>Actions</th>
     </tr>
-  <% }) %>
+  </thead>
+
+  <tbody>
+    <% doctors.forEach(d => { %>
+      <tr>
+        <td><%= d.name %></td>
+        <td><%= d.department %></td>
+        <td><%= d.maxPatientsPerDay %></td>
+        <td><%= d.avgConsultTime %></td>
+        <td>
+          <a href="/admin/edit-doctor/<%= d._id %>">Edit</a> |
+          <a href="/admin/delete-doctor/<%= d._id %>">Delete</a> |
+          <a href="/admin/doctor/<%= d._id %>/leave">Manage Leave</a>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
 </table>

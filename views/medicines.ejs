@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pharmacy Dashboard | MediBridge</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      margin: 0;
+      background-color: #f4f7fc;
+    }
+    
+
+    /* --- HEADER --- */
+    header {
+      background-color: #006eff;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 40px;
+      font-size: 18px;
+      font-weight: 500;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    header .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 20px;
+    }
+
+    header button {
+      background: white;
+      color: #006eff;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    header button:hover {
+      background: #004bb3;
+      color: white;
+    }
+
+    /* --- MAIN CONTAINER --- */
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #222;
+      font-weight: 600;
+    }
+
+    /* --- DASHBOARD CARDS --- */
+    .stats-container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .card {
+      padding: 10px 25px;
+      border-radius: 10px;
+      font-weight: 600;
+      color: white;
+      text-align: center;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .bg-primary { background: #007bff; }
+    .bg-success { background: #28a745; }
+    .bg-warning { background: #ffc107; color: #222; }
+    .bg-danger { background: #dc3545; }
+
+    /* --- TABLE STYLING --- */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background: #007bff;
+      color: white;
+    }
+
+    tr:hover {
+      background: #f1f1f1;
+    }
+
+    /* --- BUTTONS --- */
+    .btn {
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    .btn-warning {
+      background: #ffc107;
+      color: #222;
+    }
+
+    .btn-warning:hover { background: #e0a800; }
+
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-danger:hover { background: #b02a37; }
+
+    .status {
+      font-weight: bold;
+    }
+
+    .status.active { color: #28a745; }
+    .status.near { color: #ff9800; }
+    .status.expired { color: #dc3545; }
+
+    /* --- FOOTER --- */
+    footer {
+      background: #006eff;
+      color: white;
+      text-align: center;
+      padding: 15px;
+      margin-top: 40px;
+      font-size: 14px;
+      box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.2);
+    }
+  </style>
+</head>
+<!-- ✅ Toast Notification Box -->
+<div id="toast" class="toast">
+  <span id="toastMessage"></span>
+</div>
+
+<!-- Alerts data injected as JSON to avoid embedding EJS tags directly in JS -->
+<script id="alerts-data" type="application/json"><%- JSON.stringify(alerts || []) %></script>
+
+<style>
+.toast {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  background: #ffae00;
+  color: #222;
+  padding: 12px 18px;
+  border-radius: 8px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+  font-weight: 600;
+  opacity: 0;
+  transform: translateX(50px);
+  transition: all 0.5s ease-in-out;
+  z-index: 999;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+</style>
+<script>
+  const alertsEl = document.getElementById('alerts-data');
+  const alerts = alertsEl ? JSON.parse(alertsEl.textContent || '[]') : [];
+
+  if (alerts.length > 0) {
+    const latest = alerts[0]; // Show most recent alert
+    const toast = document.getElementById("toast");
+    const msg = document.getElementById("toastMessage");
+
+    msg.innerText = `⚠️ Medicine "${latest.medicine}" (Batch: ${latest.batchNumber}) expires in ${latest.daysLeft} days!`;
+
+    toast.classList.add("show");
+
+    setTimeout(() => {
+      toast.classList.remove("show");
+    }, 6000);
+  }
+</script>
+
+
+<body>
+
+  <!-- ✅ HEADER -->
+  <header>
+    <div class="logo">💊 MediBridge Pharmacy</div>
+    <button onclick="window.location.href='/api/medicines/add'">+ Add Medicine</button>
+  </header>
+
+  <!-- ✅ MAIN DASHBOARD -->
+  <div class="container">
+    <h2>Pharmacy Dashboard – Medicine Tracker</h2>
+
+    <!-- ✅ Summary Cards -->
+    <div class="stats-container">
+      <div class="card bg-primary">Total: <%= medicines.length %></div>
+      <div class="card bg-success">Active: <%= medicines.filter(m => {
+        const exp = new Date(m.expiryDate);
+        const diff = (exp - new Date()) / (1000 * 60 * 60 * 24);
+        return diff >= 30;
+      }).length %></div>
+      <div class="card bg-warning">Near Expiry: <%= medicines.filter(m => {
+        const exp = new Date(m.expiryDate);
+        const diff = (exp - new Date()) / (1000 * 60 * 60 * 24);
+        return diff < 30 && diff >= 0;
+      }).length %></div>
+      <div class="card bg-danger">Expired: <%= medicines.filter(m => {
+        const exp = new Date(m.expiryDate);
+        return (exp - new Date()) < 0;
+      }).length %></div>
+    </div>
+
+    <!-- ✅ Medicine Table -->
+    <table>
+      <thead>
+        <tr>
+          <th>Medicine Name</th>
+          <th>Batch Number</th>
+          <th>Expiry Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% medicines.forEach(med => { 
+          const today = new Date();
+          const exp = new Date(med.expiryDate);
+          const diff = (exp - today) / (1000 * 60 * 60 * 24);
+        %>
+          <tr>
+            <td><%= med.name %></td>
+            <td><%= med.batchNumber %></td>
+            <td><%= exp.toDateString() %></td>
+            <td>
+              <% if (diff < 0) { %>
+                <span class="status expired">Expired</span>
+              <% } else if (diff < 30) { %>
+                <span class="status near">Near Expiry</span>
+              <% } else { %>
+                <span class="status active">Active</span>
+              <% } %>
+            </td>
+            <td>
+              <a href="/api/medicines/edit/<%= med._id %>" class="btn btn-warning">Edit</a>
+              <form action="/api/medicines/delete/<%= med._id %>" method="POST" style="display:inline;">
+                <button type="submit" class="btn btn-danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ✅ FOOTER -->
+  <footer>
+    © 2024 MediBridge Pharmacy | All rights reserved.
+  </footer>
+</body>
+</html>

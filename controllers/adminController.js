@@ -3,6 +3,8 @@ const Doctor = require("../databases/Doctor");
 const Token = require("../databases/Token");
 const Resource = require("../databases/HospitalResource"); // create this model
 const nodemailer = require("nodemailer");
+const Patient = require("../databases/patients"); 
+const Leave = require("../databases/Leave");
 
 // Your transporter
 const transporter = nodemailer.createTransport({
@@ -12,6 +14,10 @@ const transporter = nodemailer.createTransport({
     pass: "eqrp bivz btry chjm"
   }
 });
+
+// ⭐ Helper for date string + weekdays
+const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const toYMD = (d) => d.toISOString().split("T")[0];
 
 exports.adminLoginPage = (req, res) => {
     res.render("adminLogin");
@@ -32,6 +38,149 @@ exports.adminLogin = async (req, res) => {
     res.redirect("/admin/dashboard");
 };
 
+
+// SHOW LEAVE FORM
+// GET: /admin/doctor/:id/leave
+exports.leaveForm = async (req, res) => {
+  try {
+    const doctor = await Doctor.findById(req.params.id);
+    if (!doctor) return res.send("Doctor not found");
+
+    const todayStr = new Date().toISOString().split("T")[0];
+
+    res.render("doctorLeave", {
+      doctor,
+      todayStr,
+      error: null,
+      success: null,
+    });
+  } catch (err) {
+    console.error("leaveForm error:", err);
+    res.send("Error loading leave form");
+  }
+};
+
+
+
+// MARK LEAVE + SEND EMAILS TO PATIENTS
+// POST: /admin/doctor/:id/leave
+exports.markLeave = async (req, res) => {
+  try {
+    const doctor = await Doctor.findById(req.params.id);
+    if (!doctor) return res.send("Doctor not found");
+
+    const { leaveDate } = req.body;
+    const todayStr = new Date().toISOString().split("T")[0];
+
+    if (!leaveDate) {
+      return res.render("doctorLeave", {
+        doctor,
+        todayStr,
+        error: "Please select a leave date.",
+        success: null,
+      });
+    }
+
+    if (leaveDate < todayStr) {
+      return res.render("doctorLeave", {
+        doctor,
+        todayStr,
+        error: "Leave date cannot be in the past.",
+        success: null,
+      });
+    }
+
+    // 1️⃣ Leave entry save / update
+    await Leave.findOneAndUpdate(
+      { doctor: doctor._id, date: leaveDate },
+      { doctor: doctor._id, date: leaveDate },
+      { upsert: true }
+    );
+
+    // 2️⃣ Already booked tokens ke liye: emergency leave → reassign logic
+    const tokens = await Token.find({
+      "doctor.id": doctor._id,
+      date: leaveDate,
+    });
+
+    for (const token of tokens) {
+      // Same department ka dusra doctor dhoondo
+      const alternateDoctor = await Doctor.findOne({
+        department: doctor.department,
+        _id: { $ne: doctor._id },
+      });
+
+      if (!alternateDoctor) {
+        // ❌ Koi alternate doctor nahi mila → patient ko cancellation mail
+        if (token.patientId) {
+          const patient = await Patient.findById(token.patientId);
+          if (patient && patient.email) {
+            await transporter.sendMail({
+              from: "dobhaal2005@gmail.com",
+              to: patient.email,
+              subject: "Appointment cancelled - doctor on leave",
+              html: `
+                <p>Dear ${patient.name || "Patient"},</p>
+                <p>Your appointment on <b>${leaveDate}</b> with <b>Dr. ${
+                doctor.name
+              }</b> has been cancelled because the doctor is on emergency leave and no alternate doctor is available.</p>
+                <p>Sorry for the inconvenience.</p>
+              `,
+            });
+          }
+        }
+
+        // Token delete kar do (optional, par clean rahega)
+        await Token.findByIdAndDelete(token._id);
+        continue;
+      }
+
+      // ✅ Alternate doctor mil gaya → token reassign
+      token.doctor.id = alternateDoctor._id;
+      token.doctor.name = alternateDoctor.name;
+      token.doctor.department = alternateDoctor.department;
+      await token.save();
+
+      // Patient ko email – doctor change info
+      if (token.patientId) {
+        const patient = await Patient.findById(token.patientId);
+        if (patient && patient.email) {
+          await transporter.sendMail({
+            from: "dobhaal2005@gmail.com",
+            to: patient.email,
+            subject: "Your doctor has been changed",
+            html: `
+              <p>Dear ${patient.name || "Patient"},</p>
+              <p>Your appointment on <b>${leaveDate}</b> was originally with <b>Dr. ${
+                doctor.name
+              }</b>.</p>
+              <p>Due to emergency leave, it has been reassigned to <b>Dr. ${
+                alternateDoctor.name
+              }</b> (${alternateDoctor.department}).</p>
+              <p>Your token number remains the same: <b>${
+                token.customToken
+              }</b>.</p>
+            `,
+          });
+        }
+      }
+    }
+
+    return res.render("doctorLeave", {
+      doctor,
+      todayStr,
+      error: null,
+      success: "Leave saved and patients handled (reassigned / cancelled).",
+    });
+  } catch (err) {
+    console.error("markLeave error:", err);
+    res.send("Error saving leave");
+  }
+};
+
+
+
+
 exports.adminDashboard = async (req, res) => {
     try {
         const resources = await Resource.findOne();
@@ -44,6 +193,17 @@ exports.adminDashboard = async (req, res) => {
             mode: "Offline"
         }).sort({ tokenNumber: 1 });
 
+         // agar DB me record hi nahi hai toh blank object bhej do
+    if (!resources) {
+      resources = {
+        beds: {
+          icu: {}, general: {}, hdu: {}, privateRoom: {}, emergency: {}
+        },
+        oxygenCylinders: {},
+        ventilators: {},
+        bloodStock: {}
+      };
+    }
         res.render("adminDashboard", {
             resources,
             doctors,
@@ -183,24 +343,22 @@ exports.editDoctorPage = async (req, res) => {
 exports.updateDoctor = async (req, res) => {
     const { name, department, maxPatientsPerDay, avgConsultTime } = req.body;
 
+    const opdDays = Array.isArray(req.body.opdDays)
+        ? req.body.opdDays
+        : [req.body.opdDays].filter(Boolean);
+
     await Doctor.findByIdAndUpdate(req.params.id, {
         name,
         department,
         maxPatientsPerDay,
-        avgConsultTime
+        avgConsultTime,
+        opdDays
     });
 
     res.redirect("/admin/doctors");
 };
 
 
-exports.markLeave = async (req, res) => {
-    const { doctorId, leaveDate } = req.body;
-
-    await Token.deleteMany({ "doctor.id": doctorId, date: leaveDate });
-
-    res.redirect("/admin/dashboard");
-};
 exports.generateOfflineToken = async (req, res) => {
   console.log("BODY RECEIVED:", req.body);
 
@@ -209,7 +367,12 @@ exports.generateOfflineToken = async (req, res) => {
     const today = new Date().toISOString().split("T")[0];
 
     // Fetch a doctor of that department
-    const doctor = await Doctor.findOne({ department });
+    const doctor = await Doctor.findOne({ department,
+  $or: [
+      { onLeaveDates: { $exists: false } },
+      { onLeaveDates: { $ne: today } }
+    ]
+    });
 
     if (!doctor) {
         return res.send("No doctor available for this department today.");

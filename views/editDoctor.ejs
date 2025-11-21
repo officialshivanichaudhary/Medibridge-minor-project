@@ -14,5 +14,16 @@
     <label>Consult Time (min)</label>
     <input type="number" name="avgConsultTime" value="<%= doctor.avgConsultTime %>" required>
 
+<h3>OPD Days</h3>
+
+<label><input type="checkbox" name="opdDays" value="Mon" <%= doctor.opdDays.includes("Mon") ? "checked" : "" %>> Mon</label>
+<label><input type="checkbox" name="opdDays" value="Tue" <%= doctor.opdDays.includes("Tue") ? "checked" : "" %>> Tue</label>
+<label><input type="checkbox" name="opdDays" value="Wed" <%= doctor.opdDays.includes("Wed") ? "checked" : "" %>> Wed</label>
+<label><input type="checkbox" name="opdDays" value="Thu" <%= doctor.opdDays.includes("Thu") ? "checked" : "" %>> Thu</label>
+<label><input type="checkbox" name="opdDays" value="Fri" <%= doctor.opdDays.includes("Fri") ? "checked" : "" %>> Fri</label>
+<label><input type="checkbox" name="opdDays" value="Sat" <%= doctor.opdDays.includes("Sat") ? "checked" : "" %>> Sat</label>
+<label><input type="checkbox" name="opdDays" value="Sun" <%= doctor.opdDays.includes("Sun") ? "checked" : "" %>> Sun</label>
+
+
     <button type="submit">Update Doctor</button>
 </form>

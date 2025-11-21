@@ -10,7 +10,11 @@ const doctorSchema = new mongoose.Schema({
   maxPatientsPerDay: { type: Number, default: 30 },
   onlineBookingLimit: { type: Number }, // optional override; if absent we'll compute from percent
   maxLeavePerMonth: { type: Number, default: 4 },
-  onLeaveDates: [String] ,// 🩺 Dates when doctor is unavailable (YYYY-MM-DD)
+  onLeaveDates: [
+    {
+      type: String, // format: "YYYY-MM-DD"
+    }
+  ],// 🩺 Dates when doctor is unavailable (YYYY-MM-DD)
   offlineReservePercent: { type: Number, default: 20 } // reserve percentage for offline tokens
 }, { timestamps: true });
 

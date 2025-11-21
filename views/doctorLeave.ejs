@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Manage Leave - <%= doctor.name %></title>
+</head>
+<body>
+  <h1>Manage Leave for <%= doctor.name %> (<%= doctor.department %>)</h1>
+
+  <% if (error) { %>
+    <p style="color: red;"><%= error %></p>
+  <% } %>
+
+  <% if (success) { %>
+    <p style="color: green;"><%= success %></p>
+  <% } %>
+
+  <form method="POST" action="/admin/doctors/<%= doctor._id %>/leave">
+    <label>Leave Date:</label>
+    <input
+      type="date"
+      name="leaveDate"
+      min="<%= todayStr %>"
+      required
+    />
+
+    <br><br>
+
+    <label>Reason (optional):</label><br>
+    <textarea name="reason" rows="3" cols="40"></textarea>
+
+    <br><br>
+    <button type="submit">Save Leave</button>
+  </form>
+
+  <hr>
+
+  <h3>Upcoming Leaves</h3>
+  <ul>
+    <% if (doctor.onLeaveDates && doctor.onLeaveDates.length > 0) { %>
+      <% doctor.onLeaveDates.forEach(d => { %>
+        <li><%= d %></li>
+      <% }) %>
+    <% } else { %>
+      <li>No leaves marked.</li>
+    <% } %>
+  </ul>
+
+  <p><a href="/admin/doctors">Back to Doctors List</a></p>
+</body>
+</html>

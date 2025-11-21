@@ -24,7 +24,11 @@ router.get("/delete-doctor/:id", isAdmin, adminController.deleteDoctor);
 router.get("/edit-doctor/:id", isAdmin, adminController.editDoctorPage);
 router.post("/edit-doctor/:id", isAdmin, adminController.updateDoctor);
 router.get("/offline-tokens", isAdmin, adminController.viewAllOfflineTokens);
+router.post("/mark-leave", adminController.markLeave);
 
+// 👇 NEW: Leave form & submit
+router.get("/doctors/:id/leave", isAdmin, adminController.leaveForm);
+router.post("/doctors/:id/leave", isAdmin, adminController.markLeave);
 
 // Leave & Tokens
 router.post("/mark-leave", isAdmin, adminController.markLeave);
