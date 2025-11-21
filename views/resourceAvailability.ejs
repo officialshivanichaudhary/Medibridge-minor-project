@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h2>🏥 Live Hospital Resource Availability</h2>
+<p><b>Last Updated:</b> <%= new Date(data.updatedAt).toLocaleString() %></p>
+
+<h3>🛏️ Beds</h3>
+<ul>
+  <li>General: <%= data.beds.general %></li>
+  <li>ICU: <%= data.beds.icu %></li>
+  <li>HDU: <%= data.beds.hdu %></li>
+  <li>Private: <%= data.beds.privateRoom %></li>
+  <li>Emergency: <%= data.beds.emergency %></li>
+</ul>
+
+<h3>💨 Equipment</h3>
+<ul>
+  <li>Oxygen Cylinders: <%= data.oxygenCylinders %></li>
+  <li>Ventilators: <%= data.ventilators %></li>
+</ul>
+
+<h3>🩸 Blood Stock</h3>
+<table border="1">
+  <tr><th>Blood Group</th><th>Units</th></tr>
+  <% for (let group in data.bloodStock) { %>
+    <tr><td><%= group %></td><td><%= data.bloodStock[group] %></td></tr>
+  <% } %>
+</table>
+
+</body>
+</html>

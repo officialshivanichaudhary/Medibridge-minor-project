@@ -5,9 +5,18 @@ const registerPatient = require('../controllers/registerPatient');
 const loginPatient = require('../controllers/loginPatient');
 const isPatientLoggedIn = require('../middleware/isLoggedIn');
 const bookController = require('../controllers/patientController');
+const patientController = require('../controllers/patientController');
 
 // homepage
-router.get('/', (req, res) => res.render('home'));
+router.get("/", async (req, res) => {
+    const Resource = require("../databases/HospitalResource");
+    const resources = await Resource.findOne();
+
+    res.render("home", {
+        resources,
+        patientId: req.session.patientId || null
+    });
+});
 
 // register
 router.get('/register', (req, res) => res.render('register'));
@@ -64,5 +73,11 @@ router.post('/logout', (req, res) => {
     res.redirect('/login');
   });
 });
+
+
+// public route
+router.get('/resources', patientController.viewResources);
+
+
 
 module.exports = router;

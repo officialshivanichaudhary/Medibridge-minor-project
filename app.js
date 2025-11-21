@@ -29,9 +29,12 @@ app.set("view engine", "ejs");
 
 // Routes
 const patientRoutes = require("./routes/patientRoutes");
+const adminRoutes = require('./routes/adminRoutes');
+
 
 // Use routes
 app.use("/", patientRoutes);
+app.use('/admin', adminRoutes);
 
 // ✅ socket listener (optional log)
 io.on('connection', socket => {

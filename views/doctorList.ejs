@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h2>👨‍⚕️ Doctor Management Panel</h2>
+
+<form action="/admin/add-doctor" method="POST">
+  <h3>Add Doctor</h3>
+  <input type="text" name="name" placeholder="Name" required>
+  <input type="email" name="email" placeholder="Email" required>
+  <input type="text" name="password" placeholder="Password" required>
+  <input type="text" name="department" placeholder="Department" required>
+  <input type="text" name="opdDays" placeholder="OPD Days (e.g. Monday,Wednesday)" required>
+  <input type="number" name="avgConsultTime" placeholder="Avg Consult Time (min)" required>
+  <input type="number" name="maxPatientsPerDay" placeholder="Max Patients Per Day" required>
+  <input type="number" name="onlineBookingLimit" placeholder="Online Limit" required>
+  <button type="submit">➕ Add Doctor</button>
+</form>
+
+<hr>
+
+<h3>🩺 Doctor List</h3>
+<table border="1">
+  <tr><th>Name</th><th>Dept</th><th>Email</th><th>Leave Dates</th><th>Action</th></tr>
+  <% doctors.forEach(doc => { %>
+    <tr>
+      <td><%= doc.name %></td>
+      <td><%= doc.department %></td>
+      <td><%= doc.email %></td>
+      <td><%= doc.onLeaveDates.join(', ') %></td>
+      <td>
+        <form action="/admin/mark-leave" method="POST">
+          <input type="hidden" name="doctorId" value="<%= doc._id %>">
+          <input type="date" name="leaveDate" required>
+          <button type="submit">Mark Leave</button>
+        </form>
+        <a href="/admin/delete-doctor/<%= doc._id %>">🗑️ Delete</a>
+      </td>
+    </tr>
+  <% }) %>
+</table>
+
+<hr>
+
+<h3>🧾 Generate Offline Token</h3>
+<form action="/admin/generate-offline-token" method="POST">
+  <select name="doctorId">
+    <% doctors.forEach(doc => { %>
+      <option value="<%= doc._id %>"><%= doc.name %> - <%= doc.department %></option>
+    <% }) %>
+  </select>
+  <input type="text" name="patientName" placeholder="Patient Name" required>
+  <input type="date" name="date" required>
+  <input type="text" name="timeSlot" placeholder="Time (e.g. 10:00 AM)" required>
+  <input type="text" name="problem" placeholder="Problem (optional)">
+  <button type="submit">Generate Token</button>
+</form>
+
+</body>
+</html>

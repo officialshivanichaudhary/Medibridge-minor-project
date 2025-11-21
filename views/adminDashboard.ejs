@@ -1,0 +1,135 @@
+<h1>Admin Dashboard</h1>
+
+<form action="/admin/update-resources" method="POST" class="card">
+
+    <h2>Hospital Resources</h2>
+
+    <!-- ICU -->
+    <label>Total ICU Beds</label>
+    <input type="number" name="icu_total" value="<%= resources.beds.icu.total %>" />
+
+    <label>Occupied ICU Beds</label>
+    <input type="number" name="icu_occupied" value="<%= resources.beds.icu.occupied %>" />
+
+    <!-- GENERAL -->
+    <label>Total General Beds</label>
+    <input type="number" name="general_total" value="<%= resources.beds.general.total %>" />
+
+    <label>Occupied General Beds</label>
+    <input type="number" name="general_occupied" value="<%= resources.beds.general.occupied %>" />
+
+    <!-- HDU -->
+    <label>Total HDU Beds</label>
+    <input type="number" name="hdu_total" value="<%= resources.beds.hdu.total %>" />
+
+    <label>Occupied HDU Beds</label>
+    <input type="number" name="hdu_occupied" value="<%= resources.beds.hdu.occupied %>" />
+
+    <!-- Private Room -->
+    <label>Total Private Rooms</label>
+    <input type="number" name="private_total" value="<%= resources.beds.privateRoom.total %>" />
+
+    <label>Occupied Private Rooms</label>
+    <input type="number" name="private_occupied" value="<%= resources.beds.privateRoom.occupied %>" />
+
+    <!-- Emergency Beds -->
+    <label>Total Emergency Beds</label>
+    <input type="number" name="emergency_total" value="<%= resources.beds.emergency.total %>" />
+
+    <label>Occupied Emergency Beds</label>
+    <input type="number" name="emergency_occupied" value="<%= resources.beds.emergency.occupied %>" />
+
+    <!-- Oxygen -->
+    <label>Total Oxygen Cylinders</label>
+    <input type="number" name="oxygen_total" value="<%= resources.oxygenCylinders.total %>" />
+
+    <label>Used Oxygen Cylinders</label>
+    <input type="number" name="oxygen_used" value="<%= resources.oxygenCylinders.used %>" />
+
+    <!-- Ventilators -->
+    <label>Total Ventilators</label>
+    <input type="number" name="ventilator_total" value="<%= resources.ventilators.total %>" />
+
+    <label>Used Ventilators</label>
+    <input type="number" name="ventilator_used" value="<%= resources.ventilators.used %>" />
+
+    <h2>Blood Bank</h2>
+    <% Object.keys(resources.bloodStock).forEach(group => { %>
+      <label><%= group %> Units</label>
+      <input type="number" name="blood_<%= group %>" value="<%= resources.bloodStock[group] %>" />
+    <% }) %>
+
+    <button type="submit">Save Changes</button>
+</form>
+
+<hr>
+
+<h2>Doctors</h2>
+<a href="/admin/doctors">Manage Doctors</a>
+
+<hr>
+
+<h2>Offline Tokens</h2>
+<a href="/admin/offline-tokens">Manage Offline Tokens</a>
+
+
+<h3>Generate Offline Token</h3>
+
+<form method="POST" action="/admin/generate-offline-token" class="card p-3 mb-4">
+
+  <label>Patient Name:</label>
+  <input type="text" name="patientName" class="form-control" required>
+
+  <label>Select Department:</label>
+  <select name="department" class="form-select" required>
+      <option value="">Choose Department</option>
+      <option value="Cardiology">Cardiology</option>
+      <option value="Dermatology">Dermatology</option>
+      <option value="ENT">ENT</option>
+      <option value="Orthopedics">Orthopedics</option>
+      <option value="General Medicine">General Medicine</option>
+  </select>
+
+  <button type="submit" class="btn btn-primary mt-3">Generate Token</button>
+</form>
+
+<h3 class="mt-4">Today's Offline Tokens</h3>
+
+<a href="/admin/offline-tokens">View Today's Tokens</a>
+
+<!-- 
+<table border="1" cellpadding="10" cellspacing="0" style="border-collapse: collapse; width: 100%; margin-top: 15px;">
+    <thead style="background:#f2f2f2; font-weight: bold;">
+        <tr>
+            <th>Token</th>
+            <th>Patient Name</th>
+            <th>Doctor</th>
+            <th>Department</th>
+            <th>Generated At</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        <% if (todaysTokens && todaysTokens.length > 0) { %>
+
+            <% todaysTokens.forEach(t => { %>
+                <tr>
+                    <td><%= t.customToken %></td>
+                    <td><%= t.offlineName %></td>
+                    <td><%= t.doctor.name %></td>
+                    <td><%= t.doctor.department %></td>
+                    <td><%= new Date(t.createdAt).toLocaleTimeString() %></td>
+                </tr>
+            <% }) %>
+
+        <% } else { %>
+            <tr>
+                <td colspan="5" style="text-align:center; color:gray;">
+                    No tokens generated today.
+                </td>
+            </tr>
+        <% } %>
+
+    </tbody>
+</table> -->
+

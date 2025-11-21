@@ -1,0 +1,33 @@
+<h1>Today's Offline Tokens</h1>
+
+<table border="1" cellpadding="10" style="border-collapse:collapse; width:100%;">
+    <thead style="background:#f2f2f2; font-weight:bold;">
+        <tr>
+            <th>Token</th>
+            <th>Patient Name</th>
+            <th>Doctor</th>
+            <th>Department</th>
+            <th>Generated At</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% if (tokens.length === 0) { %>
+            <tr>
+                <td colspan="5" style="text-align:center;">No offline tokens generated today.</td>
+            </tr>
+        <% } else { %>
+            <% tokens.forEach(t => { %>
+                <tr>
+                    <td><%= t.customToken %></td>
+                    <td><%= t.offlineName %></td>
+                    <td><%= t.doctor.name %></td>
+                    <td><%= t.doctor.department %></td>
+                    <td><%= new Date(t.createdAt).toLocaleTimeString() %></td>
+                </tr>
+            <% }) %>
+        <% } %>
+    </tbody>
+</table>
+
+<a href="/admin/dashboard">← Back to Dashboard</a>
+

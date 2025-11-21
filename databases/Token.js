@@ -16,6 +16,8 @@ const tokenSchema = new mongoose.Schema({
   problem: String,
   tokenNumber: Number,
   customToken: String, 
+  offlineName: { type: String },
+
   mode: { type: String, enum: ['Online', 'Offline'], default: 'Online' },
   status: { type: String, default: 'Active' }
 }, { timestamps: true });

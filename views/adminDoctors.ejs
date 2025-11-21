@@ -1,0 +1,40 @@
+<h1>Manage Doctors</h1>
+
+<!-- Add Doctor Form -->
+<h2>Add New Doctor</h2>
+
+<form method="POST" action="/admin/add-doctor">
+  <input type="text" name="name" placeholder="Doctor Name" required>
+  <input type="text" name="department" placeholder="Department" required>
+  <input type="number" name="maxPatientsPerDay" placeholder="Max Patients" required>
+  <input type="number" name="avgConsultTime" placeholder="Consult Time (min)" required>
+  <button type="submit">Add Doctor</button>
+</form>
+
+<hr>
+
+<h2>Existing Doctors</h2>
+<table border="1" cellpadding="8">
+  <tr>
+    <th>Name</th>
+    <th>Department</th>
+    <th>Max Patients</th>
+    <th>Consult Time</th>
+    <th>Action</th>
+  </tr>
+
+  <% doctors.forEach(d => { %>
+    <tr>
+      <td><%= d.name %></td>
+      <td><%= d.department %></td>
+      <td><%= d.maxPatientsPerDay %></td>
+      <td><%= d.avgConsultTime %></td>
+      <td>
+  <a href="/admin/edit-doctor/<%= d._id %>">Edit</a> |
+<a href="/admin/delete-doctor/<%= d._id %>">Delete</a>
+
+</td>
+
+    </tr>
+  <% }) %>
+</table>

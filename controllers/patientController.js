@@ -3,6 +3,14 @@ const Doctor = require('../databases/Doctor');
 const Token = require('../databases/Token');
 const { addDays, format, addMinutes } = require('date-fns');
 const nodemailer = require("nodemailer");
+const HospitalResource = require('../databases/HospitalResource');
+
+
+exports.viewResources = async (req, res) => {
+  const data = await HospitalResource.findOne();
+  res.render('resourceAvailability', { data });
+};
+
 
 // helper: format Date -> "YYYY-MM-DD"
 function toDateString(d) {

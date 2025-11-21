@@ -2,11 +2,236 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>MediBridge | Hospital Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f4f7fa;
+        }
+        .resource-card {
+            border-radius: 16px;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: 0.3s;
+        }
+        .resource-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+        }
+        .title-text {
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .badge-custom {
+            font-size: 0.9rem;
+            padding: 6px 12px;
+        }
+        .section-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .blood-box {
+            border-radius: 12px;
+            padding: 15px;
+            background: white;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+    </style>
 </head>
+
 <body>
-    <a href="/login">login</a>
-    <a href="/register">Register</a>
+
+<nav class="navbar navbar-dark bg-primary">
+    <div class="container">
+        <span class="navbar-brand title-text">MediBridge</span>
+
+         <a href="/login" class="navbar-brand title-text">login</a>
+  <a href="/register" class="navbar-brand title-text">Register</a>
+    <a href="/profile" class="navbar-brand title-text">Profile</a>
+    </div>
+</nav>
+
+<div class="container my-5">
+
+    <h2 class="title-text mb-4">Hospital Resource Dashboard</h2>
+
+    <!-- RESOURCE GRID -->
+    <div class="row g-4">
+
+        <!-- ICU -->
+        <div class="col-md-4">
+            <div class="resource-card">
+                <h5 class="section-title">ICU Beds</h5>
+                <span class="badge bg-secondary badge-custom">
+                    Total: <%= resources.beds.icu.total %>
+                </span><br><br>
+                <span class="badge bg-danger badge-custom">
+                    Occupied: <%= resources.beds.icu.occupied %>
+                </span><br><br>
+                <span class="badge bg-success badge-custom">
+                    Available: <%= resources.beds.icu.total - resources.beds.icu.occupied %>
+                </span>
+            </div>
+        </div>
+
+        <!-- GENERAL -->
+        <div class="col-md-4">
+            <div class="resource-card">
+                <h5 class="section-title">General Beds</h5>
+                <span class="badge bg-secondary badge-custom">
+                    Total: <%= resources.beds.general.total %>
+                </span><br><br>
+                <span class="badge bg-danger badge-custom">
+                    Occupied: <%= resources.beds.general.occupied %>
+                </span><br><br>
+                <span class="badge bg-success badge-custom">
+                    Available: <%= resources.beds.general.total - resources.beds.general.occupied %>
+                </span>
+            </div>
+        </div>
+
+        <!-- HDU -->
+        <div class="col-md-4">
+            <div class="resource-card">
+                <h5 class="section-title">HDU Beds</h5>
+                <span class="badge bg-secondary badge-custom">
+                    Total: <%= resources.beds.hdu.total %>
+                </span><br><br>
+                <span class="badge bg-danger badge-custom">
+                    Occupied: <%= resources.beds.hdu.occupied %>
+                </span><br><br>
+                <span class="badge bg-success badge-custom">
+                    Available: <%= resources.beds.hdu.total - resources.beds.hdu.occupied %>
+                </span>
+            </div>
+        </div>
+
+        <!-- PRIVATE ROOMS -->
+        <div class="col-md-4">
+            <div class="resource-card">
+                <h5 class="section-title">Private Rooms</h5>
+                <span class="badge bg-secondary badge-custom">
+                    Total: <%= resources.beds.privateRoom.total %>
+                </span><br><br>
+                <span class="badge bg-danger badge-custom">
+                    Occupied: <%= resources.beds.privateRoom.occupied %>
+                </span><br><br>
+                <span class="badge bg-success badge-custom">
+                    Available: <%= resources.beds.privateRoom.total - resources.beds.privateRoom.occupied %>
+                </span>
+            </div>
+        </div>
+
+        <!-- EMERGENCY -->
+        <div class="col-md-4">
+            <div class="resource-card">
+                <h5 class="section-title">Emergency Beds</h5>
+                <span class="badge bg-secondary badge-custom">
+                    Total: <%= resources.beds.emergency.total %>
+                </span><br><br>
+                <span class="badge bg-danger badge-custom">
+                    Occupied: <%= resources.beds.emergency.occupied %>
+                </span><br><br>
+                <span class="badge bg-success badge-custom">
+                    Available: <%= resources.beds.emergency.total - resources.beds.emergency.occupied %>
+                </span>
+            </div>
+        </div>
+
+        <!-- OXYGEN -->
+        <div class="col-md-4">
+            <div class="resource-card">
+                <h5 class="section-title">Oxygen Cylinders</h5>
+                <span class="badge bg-secondary badge-custom">
+                    Total: <%= resources.oxygenCylinders.total %>
+                </span><br><br>
+                <span class="badge bg-danger badge-custom">
+                    Used: <%= resources.oxygenCylinders.used %>
+                </span><br><br>
+                <span class="badge bg-success badge-custom">
+                    Available: <%= resources.oxygenCylinders.total - resources.oxygenCylinders.used %>
+                </span>
+            </div>
+        </div>
+
+        <!-- VENTILATORS -->
+        <div class="col-md-4">
+            <div class="resource-card">
+                <h5 class="section-title">Ventilators</h5>
+                <span class="badge bg-secondary badge-custom">
+                    Total: <%= resources.ventilators.total %>
+                </span><br><br>
+                <span class="badge bg-danger badge-custom">
+                    Used: <%= resources.ventilators.used %>
+                </span><br><br>
+                <span class="badge bg-success badge-custom">
+                    Available: <%= resources.ventilators.total - resources.ventilators.used %>
+                </span>
+            </div>
+        </div>
+
+    </div>
+
+  <h2 class="title-text mt-5">Blood Bank Status</h2>
+
+<div class="row mt-3">
+
+    <% Object.keys(resources.bloodStock).forEach(group => { 
+        const units = resources.bloodStock[group];
+
+        // Color logic
+        let boxColor = "bg-success";       // green
+        let alertText = "Sufficient";
+
+        if (units <= 3) {
+            boxColor = "bg-danger";        // red
+            alertText = "Critical – Urgent Need!";
+        } 
+        else if (units <= 7) {
+            boxColor = "bg-warning text-dark"; // yellow
+            alertText = "Low Stock";
+        }
+    %>
+
+    <div class="col-md-3">
+        <div class="blood-box text-center <%= boxColor %>" 
+             style="border-radius: 12px; padding: 18px;">
+
+            <h5 class="fw-bold" style="color:black;"><%= group %></h5>
+
+            <span class="badge bg-dark badge-custom">
+                <%= units %> units
+            </span>
+
+            <br><br>
+
+            <span class="badge 
+                <% if(units <= 3){ %> bg-light text-danger 
+                <% } else if(units <= 7){ %> bg-dark text-warning 
+                <% } else { %> bg-light text-success <% } %>"
+                style="padding: 6px 10px; font-size: 0.85rem;">
+                <%= alertText %>
+            </span>
+
+        </div>
+    </div>
+
+    <% }) %>
+
+</div>
+
+
+    <!-- FOOTER -->
+    <footer class="mt-5 text-center text-secondary">
+        <hr>
+        <p>Last Updated By: <strong><%= resources.lastUpdatedBy || "Admin" %></strong></p>
+        <p>Last Updated On: <%= resources.updatedAt.toLocaleString() %></p>
+    </footer>
+
+</div>
+
 </body>
 </html>
