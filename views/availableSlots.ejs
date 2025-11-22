@@ -52,11 +52,11 @@
     <div class="slots">
 
       <% day.slots.forEach(slot => { 
-        const cleanId = slot.time.replace(/[: ]/g, '').toUpperCase();
+        const cleanId = slot.time.replace(/[: ]/g, '').toUpperCase(); 
       %>
 
         <form method="POST" action="/book-token" onsubmit="return askProblem(this)" style="display:inline;">
-          
+
           <!-- REQUIRED BACKEND FIELDS -->
           <input type="hidden" name="department" value="<%= day.doctor.department %>">
           <input type="hidden" name="patientId" value="<%= patientId %>">
@@ -101,8 +101,10 @@
     const socket = io();
 
     socket.on("slotBooked", (data) => {
-      const cleaned = data.timeSlot.replace(/[: ]/g, '').toUpperCase();
-      const btnId = `slot-${data.date.replace(/-/g, '')}-${cleaned}`;
+    const cleanedTime = data.timeSlot.replace(/[: ]/g, '').toUpperCase();
+      const cleanedDate = data.date.replace(/-/g, '');
+      const btnId = `slot-${cleanedDate}-${cleanedTime}`;
+
       const btn = document.getElementById(btnId);
 
       if (btn) {

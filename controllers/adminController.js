@@ -341,23 +341,32 @@ exports.viewDoctors = async (req, res) => {
 };
 
 exports.addDoctor = async (req, res) => {
-    const { name, department, maxPatientsPerDay, avgConsultTime } = req.body;
+  const {
+    name,
+    department,
+    maxPatientsPerDay,
+    avgConsultTime,
+    maxLeavePerMonth,
+    offlineReservePercent
+  } = req.body;
 
-  if (!Array.isArray(opdDays) && opdDays) {
-    opdDays = [opdDays];  // single select case
-  }
+  // opdDays aa sakta hai string (single checkbox) ya array (multiple)
+  let opdDays = req.body.opdDays || [];
+  if (!Array.isArray(opdDays)) opdDays = [opdDays];
 
+  await Doctor.create({
+    name,
+    department,
+    maxPatientsPerDay,
+    avgConsultTime,
+    opdDays,
+    maxLeavePerMonth: maxLeavePerMonth || 4,
+    offlineReservePercent: offlineReservePercent || 20
+  });
 
-    await Doctor.create({
-        name,
-        department,
-        maxPatientsPerDay,
-        avgConsultTime,
-          opdDays  
-    });
-
-    res.redirect("/admin/doctors");
+  res.redirect("/admin/doctors");
 };
+
 
 exports.deleteDoctor = async (req, res) => {
     await Doctor.findByIdAndDelete(req.params.id);
@@ -370,23 +379,31 @@ exports.editDoctorPage = async (req, res) => {
 };
 
 exports.updateDoctor = async (req, res) => {
-    const { name, department, maxPatientsPerDay, avgConsultTime } = req.body;
+  const {
+    name,
+    department,
+    maxPatientsPerDay,
+    avgConsultTime,
+    maxLeavePerMonth,
+    offlineReservePercent
+  } = req.body;
 
-  
-  if (!Array.isArray(opdDays) && opdDays) {
-    opdDays = [opdDays];
-  }
+  let opdDays = req.body.opdDays || [];
+  if (!Array.isArray(opdDays)) opdDays = [opdDays];
 
-    await Doctor.findByIdAndUpdate(req.params.id, {
-        name,
-        department,
-        maxPatientsPerDay,
-        avgConsultTime,
-        opdDays
-    });
+  await Doctor.findByIdAndUpdate(req.params.id, {
+    name,
+    department,
+    maxPatientsPerDay,
+    avgConsultTime,
+    opdDays,
+    maxLeavePerMonth: maxLeavePerMonth || 4,
+    offlineReservePercent: offlineReservePercent || 20
+  });
 
-    res.redirect("/admin/doctors");
+  res.redirect("/admin/doctors");
 };
+
 
 
 exports.generateOfflineToken = async (req, res) => {

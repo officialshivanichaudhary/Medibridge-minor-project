@@ -1,3 +1,4 @@
+
 <h1>Manage Doctors</h1>
 
 <!-- Add Doctor Form -->
@@ -6,9 +7,32 @@
 <form method="POST" action="/admin/add-doctor">
   <input type="text" name="name" placeholder="Doctor Name" required>
   <input type="text" name="department" placeholder="Department" required>
+
   <input type="number" name="maxPatientsPerDay" placeholder="Max Patients" required>
   <input type="number" name="avgConsultTime" placeholder="Consult Time (min)" required>
-  <button type="submit">Add Doctor</button>
+
+  <!-- ✅ OPD days selection -->
+  <div style="margin-top:8px;">
+    <label><b>OPD Days:</b></label><br>
+    <% const allDays = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]; %>
+    <% allDays.forEach(d => { %>
+      <label style="margin-right:10px;">
+        <input type="checkbox" name="opdDays" value="<%= d %>">
+        <%= d %>
+      </label>
+    <% }) %>
+  </div>
+
+  <!-- ✅ Limits -->
+  <div style="margin-top:8px;">
+    <label>Max Leave / Month:</label>
+    <input type="number" name="maxLeavePerMonth" min="0" value="4" style="width:80px;">
+    
+    <label style="margin-left:12px;">Offline Reserve %:</label>
+    <input type="number" name="offlineReservePercent" min="0" max="100" value="20" style="width:80px;">
+  </div>
+
+  <button type="submit" style="margin-top:10px;">Add Doctor</button>
 </form>
 
 <hr>
@@ -32,7 +56,10 @@
         <td><%= d.department %></td>
         <td><%= d.maxPatientsPerDay %></td>
         <td><%= d.avgConsultTime %></td>
+
+        <!-- ✅ show OPD days decided by admin -->
         <td><%= (d.opdDays || []).join(", ") %></td>
+
         <td>
           <a href="/admin/edit-doctor/<%= d._id %>">Edit</a> |
           <a href="/admin/doctors/<%= d._id %>/leave">Manage Leave</a> |
