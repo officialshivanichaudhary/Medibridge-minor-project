@@ -16,8 +16,9 @@ const transporter = nodemailer.createTransport({
 });
 
 // ⭐ Helper for date string + weekdays
-const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const toYMD = (d) => d.toISOString().split("T")[0];
+const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const todayDay = WEEKDAYS[new Date().getDay()];
+
 
 exports.adminLoginPage = (req, res) => {
     res.render("adminLogin");
@@ -41,35 +42,50 @@ exports.adminLogin = async (req, res) => {
 
 // SHOW LEAVE FORM
 // GET: /admin/doctor/:id/leave
+
 exports.leaveForm = async (req, res) => {
   try {
     const doctor = await Doctor.findById(req.params.id);
     if (!doctor) return res.send("Doctor not found");
 
-    const todayStr = new Date().toISOString().split("T")[0];
+    const today = new Date();
+    const todayStr = today.toISOString().split("T")[0];
+
+    const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const todayDay = WEEKDAYS[today.getDay()];
+
+    const upcomingLeaves = await Leave.find({
+      doctor: doctor._id,
+      date: { $gte: todayStr }
+    }).sort({ date: 1 });
 
     res.render("doctorLeave", {
       doctor,
       todayStr,
+      todayDay,
+      upcomingLeaves,
       error: null,
-      success: null,
+      success: null
     });
+
   } catch (err) {
-    console.error("leaveForm error:", err);
+    console.log(err);
     res.send("Error loading leave form");
   }
 };
 
 
 
+
 // MARK LEAVE + SEND EMAILS TO PATIENTS
 // POST: /admin/doctor/:id/leave
+
 exports.markLeave = async (req, res) => {
   try {
     const doctor = await Doctor.findById(req.params.id);
     if (!doctor) return res.send("Doctor not found");
 
-    const { leaveDate } = req.body;
+    const { leaveDate, reason } = req.body;
     const todayStr = new Date().toISOString().split("T")[0];
 
     if (!leaveDate) {
@@ -93,9 +109,16 @@ exports.markLeave = async (req, res) => {
     // 1️⃣ Leave entry save / update
     await Leave.findOneAndUpdate(
       { doctor: doctor._id, date: leaveDate },
-      { doctor: doctor._id, date: leaveDate },
-      { upsert: true }
+      { doctor: doctor._id, date: leaveDate, reason: reason || "" },
+      { upsert: true, new: true }
     );
+
+    // Doctor document pe bhi onLeaveDates push karo (UI ke liye)
+    if (!Array.isArray(doctor.onLeaveDates)) doctor.onLeaveDates = [];
+    if (!doctor.onLeaveDates.includes(leaveDate)) {
+      doctor.onLeaveDates.push(leaveDate);
+      await doctor.save();
+    }
 
     // 2️⃣ Already booked tokens ke liye: emergency leave → reassign logic
     const tokens = await Token.find({
@@ -104,7 +127,7 @@ exports.markLeave = async (req, res) => {
     });
 
     for (const token of tokens) {
-      // Same department ka dusra doctor dhoondo
+      // Same department ka dusra doctor dhoondo (jo ye doctor nahi hai)
       const alternateDoctor = await Doctor.findOne({
         department: doctor.department,
         _id: { $ne: doctor._id },
@@ -121,16 +144,16 @@ exports.markLeave = async (req, res) => {
               subject: "Appointment cancelled - doctor on leave",
               html: `
                 <p>Dear ${patient.name || "Patient"},</p>
-                <p>Your appointment on <b>${leaveDate}</b> with <b>Dr. ${
-                doctor.name
-              }</b> has been cancelled because the doctor is on emergency leave and no alternate doctor is available.</p>
-                <p>Sorry for the inconvenience.</p>
+                <p>Your appointment on <b>${leaveDate}</b> with <b>${
+                  doctor.name
+                }</b> has been cancelled because the doctor is on emergency leave and no alternate doctor is available.</p>
+                <p>We regret the inconvenience.</p>
               `,
             });
           }
         }
 
-        // Token delete kar do (optional, par clean rahega)
+        // Token delete kar do (clean DB)
         await Token.findByIdAndDelete(token._id);
         continue;
       }
@@ -151,10 +174,10 @@ exports.markLeave = async (req, res) => {
             subject: "Your doctor has been changed",
             html: `
               <p>Dear ${patient.name || "Patient"},</p>
-              <p>Your appointment on <b>${leaveDate}</b> was originally with <b>Dr. ${
+              <p>Your appointment on <b>${leaveDate}</b> was originally with <b>${
                 doctor.name
               }</b>.</p>
-              <p>Due to emergency leave, it has been reassigned to <b>Dr. ${
+              <p>Due to emergency leave, it has been reassigned to <b>${
                 alternateDoctor.name
               }</b> (${alternateDoctor.department}).</p>
               <p>Your token number remains the same: <b>${
@@ -170,14 +193,14 @@ exports.markLeave = async (req, res) => {
       doctor,
       todayStr,
       error: null,
-      success: "Leave saved and patients handled (reassigned / cancelled).",
+      success:
+        "Leave saved and patients handled (reassigned to another doctor or cancelled).",
     });
   } catch (err) {
     console.error("markLeave error:", err);
     res.send("Error saving leave");
   }
 };
-
 
 
 
@@ -320,11 +343,17 @@ exports.viewDoctors = async (req, res) => {
 exports.addDoctor = async (req, res) => {
     const { name, department, maxPatientsPerDay, avgConsultTime } = req.body;
 
+  if (!Array.isArray(opdDays) && opdDays) {
+    opdDays = [opdDays];  // single select case
+  }
+
+
     await Doctor.create({
         name,
         department,
         maxPatientsPerDay,
-        avgConsultTime
+        avgConsultTime,
+          opdDays  
     });
 
     res.redirect("/admin/doctors");
@@ -343,9 +372,10 @@ exports.editDoctorPage = async (req, res) => {
 exports.updateDoctor = async (req, res) => {
     const { name, department, maxPatientsPerDay, avgConsultTime } = req.body;
 
-    const opdDays = Array.isArray(req.body.opdDays)
-        ? req.body.opdDays
-        : [req.body.opdDays].filter(Boolean);
+  
+  if (!Array.isArray(opdDays) && opdDays) {
+    opdDays = [opdDays];
+  }
 
     await Doctor.findByIdAndUpdate(req.params.id, {
         name,

@@ -19,12 +19,12 @@
     <tr>
       <th>Name</th>
       <th>Department</th>
-      <th>Max Patients/Day</th>
-      <th>Avg Consult Time</th>
+      <th>Max Patients</th>
+      <th>Avg Time</th>
+      <th>OPD Days</th>
       <th>Actions</th>
     </tr>
   </thead>
-
   <tbody>
     <% doctors.forEach(d => { %>
       <tr>
@@ -32,10 +32,11 @@
         <td><%= d.department %></td>
         <td><%= d.maxPatientsPerDay %></td>
         <td><%= d.avgConsultTime %></td>
+        <td><%= (d.opdDays || []).join(", ") %></td>
         <td>
           <a href="/admin/edit-doctor/<%= d._id %>">Edit</a> |
-          <a href="/admin/delete-doctor/<%= d._id %>">Delete</a> |
-          <a href="/admin/doctor/<%= d._id %>/leave">Manage Leave</a>
+          <a href="/admin/doctors/<%= d._id %>/leave">Manage Leave</a> |
+          <a href="/admin/delete-doctor/<%= d._id %>">Delete</a>
         </td>
       </tr>
     <% }) %>

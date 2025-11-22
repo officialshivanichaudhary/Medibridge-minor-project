@@ -4,7 +4,12 @@
   <title>Manage Leave - <%= doctor.name %></title>
 </head>
 <body>
+
   <h1>Manage Leave for <%= doctor.name %> (<%= doctor.department %>)</h1>
+
+  <% if (todayDay && !doctor.opdDays.includes(todayDay)) { %>
+      <p style="color: red;">Doctor does not have OPD on <%= todayDay %>.</p>
+  <% } %>
 
   <% if (error) { %>
     <p style="color: red;"><%= error %></p>
@@ -35,13 +40,14 @@
   <hr>
 
   <h3>Upcoming Leaves</h3>
+
   <ul>
-    <% if (doctor.onLeaveDates && doctor.onLeaveDates.length > 0) { %>
-      <% doctor.onLeaveDates.forEach(d => { %>
-        <li><%= d %></li>
+    <% if (upcomingLeaves.length > 0) { %>
+      <% upcomingLeaves.forEach(l => { %>
+        <li><%= l.date %></li>
       <% }) %>
     <% } else { %>
-      <li>No leaves marked.</li>
+      <li>No upcoming leaves.</li>
     <% } %>
   </ul>
 

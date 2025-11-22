@@ -8,15 +8,12 @@
     .legend span { padding: 6px 12px; border-radius: 5px; margin-right: 8px; font-size: 14px; }
     .available { background: #a8e6a3; }
     .booked { background-color: red; color: white; cursor: not-allowed; }
-    /* .offline { background: #f5d78e; } */
 
     .slots { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
     .slot-btn { padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; }
     .slot-btn.available { background: #4CAF50; color: white; }
     .slot-btn.booked { background: #f44336; color: white; cursor: not-allowed; }
-    /* .slot-btn.offline { background: #FFD54F; color: black; cursor: not-allowed; } */
 
-    /* 🔴 Animation when a slot is booked (blinks red once) */
     @keyframes bookedFlash {
       0% { background-color: #f44336; transform: scale(1); }
       50% { background-color: #ff7b7b; transform: scale(1.1); }
@@ -27,86 +24,96 @@
     }
   </style>
 </head>
+
 <body>
-  <h2>Doctor: <%= doctor.name %> (<%= doctor.department %>)</h2>
+
+  <h2>Department: <%= departmentName %></h2>
+
   <div class="legend">
     <span class="available">Available</span>
     <span class="booked">Booked</span>
   </div>
 
+  <% if (!availableDays || availableDays.length === 0) { %>
+    <p>No OPD slots available for the next 7 days.</p>
+  <% } %>
+
   <% availableDays.forEach(day => { %>
-    <h3><%= day.date %></h3>
+    <h3>
+      <%= day.date %> 
+      <span style="color:#444;">(<%= day.dayName %>)</span>
+      <br>
+      <span style="font-size:15px; color:#222;">
+        Doctor: <b><%= day.doctor.name %></b> 
+        (<%= day.doctor.department %>)
+      </span>
+    </h3>
+
     <div class="slots">
-      <!-- <% day.slots.forEach(slot => { %>
-        <button 
-          id="slot-<%= day.date.replace(/-/g, '') %>-<%= slot.time.replace(/[: ]/g, '') %>"
-          class="slot-btn <%= slot.booked ? 'booked' : slot.offline ? 'offline' : 'available' %>"
-          <%= slot.booked || slot.offline ? 'disabled' : '' %>
-          onclick="bookSlot('<%= doctor.department %>', '<%= day.date %>', '<%= slot.time %>')">
-          <%= slot.time %>
-        </button>
-      <% }) %> -->
-      <% day.slots.forEach(slot => { %>
-  <button 
-    class="slot-btn <%= slot.booked ? 'booked' : 'available' %>"
-    <%= slot.booked ? 'disabled' : '' %>
-    onclick="bookSlot('<%= doctor.department %>', '<%= day.date %>', '<%= slot.time %>')">
-    <%= slot.time %>
-  </button>
-<% }) %>
+
+      <% day.slots.forEach(slot => { 
+        const cleanId = slot.time.replace(/[: ]/g, '').toUpperCase();
+      %>
+
+        <form method="POST" action="/book-token" onsubmit="return askProblem(this)" style="display:inline;">
+          
+          <!-- REQUIRED BACKEND FIELDS -->
+          <input type="hidden" name="department" value="<%= day.doctor.department %>">
+          <input type="hidden" name="patientId" value="<%= patientId %>">
+          <input type="hidden" name="selectedDate" value="<%= day.date %>">
+          <input type="hidden" name="timeSlot" value="<%= slot.time %>">
+          <input type="hidden" name="doctorId" value="<%= day.doctor.id %>">
+
+          <!-- default mode -->
+          <input type="hidden" name="mode" value="Online">
+
+          <!-- problem prompt -->
+          <input type="hidden" name="problem" value="">
+
+          <button 
+            id="slot-<%= day.date.replace(/-/g, '') %>-<%= cleanId %>"
+            class="slot-btn <%= slot.booked ? 'booked' : 'available' %>"
+            <%= slot.booked ? 'disabled' : '' %>
+          >
+            <%= slot.time %>
+          </button>
+
+        </form>
+
+      <% }) %>
 
     </div>
     <hr>
   <% }) %>
 
-  <!-- ✅ Include Socket.io client -->
+  <script>
+    function askProblem(form) {
+      const p = prompt("Describe your problem:");
+      if (!p) return false;
+      form.problem.value = p;
+      return true;
+    }
+  </script>
+
+  <!-- Real-time update -->
   <script src="/socket.io/socket.io.js"></script>
   <script>
     const socket = io();
 
-    // 🔴 Real-time slot update listener
-    socket.on('slotBooked', (data) => {
-      const currentDoctorId = "<%= doctor._id %>";
+    socket.on("slotBooked", (data) => {
+      const cleaned = data.timeSlot.replace(/[: ]/g, '').toUpperCase();
+      const btnId = `slot-${data.date.replace(/-/g, '')}-${cleaned}`;
+      const btn = document.getElementById(btnId);
 
-      if (data.doctorId === currentDoctorId) {
-        const normalizedTime = data.timeSlot.trim().toUpperCase();
-        const btnId = `slot-${data.date.replace(/-/g, '')}-${data.timeSlot.replace(/[: ]/g, '')}`;
-        const btn = document.getElementById(btnId);
-
-        if (btn) {
-          btn.classList.remove('available');
-          btn.classList.add('booked', 'flash-booked');
-          btn.disabled = true;
-          btn.innerText = `${data.timeSlot} (Booked)`;
-
-          // remove flash animation class after 1.2s
-          setTimeout(() => btn.classList.remove('flash-booked'), 1200);
-        }
+      if (btn) {
+        btn.classList.remove("available");
+        btn.classList.add("booked", "flash-booked");
+        btn.disabled = true;
+        btn.innerText = `${data.timeSlot} (Booked)`;
+        setTimeout(() => btn.classList.remove("flash-booked"), 1200);
       }
     });
-
-    // Booking handler
-    async function bookSlot(department, selectedDate, timeSlot) {
-      const patientId = "<%= patientId %>";
-      if (!patientId) return alert("⚠️ Please log in as a patient.");
-
-      const problem = prompt("Describe your problem:");
-      if (!problem) return alert("Booking cancelled.");
-
-  // ✅ convert timeSlot to uppercase before sending
-    const normalizedTime = timeSlot.toUpperCase();
-
-      const res = await fetch('/book-token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ department, patientId, selectedDate, timeSlot: normalizedTime, mode: 'Online', problem })
-      });
-
-      const data = await res.text();
-      document.open();
-      document.write(data);
-      document.close();
-    }
   </script>
+
 </body>
 </html>

@@ -1,19 +1,19 @@
 const mongoose = require("mongoose");
 
-const leaveSchema = new mongoose.Schema({
-    doctorId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Doctor",
-        required: true
-    },
-    date: {
-        type: String,   // YYYY-MM-DD
-        required: true
-    },
-    reason: {
-        type: String,
-        default: ""
-    }
-});
+const LeaveSchema = new mongoose.Schema({
+  doctor: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Doctor",
+    required: true
+  },
+  date: {
+    type: String,   // YYYY-MM-DD format
+    required: true
+  },
+  reason: {
+    type: String,
+    default: ""
+  }
+}, { timestamps: true });
 
-module.exports = mongoose.model("Leave", leaveSchema);
+module.exports = mongoose.model("Leave", LeaveSchema);

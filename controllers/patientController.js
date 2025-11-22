@@ -4,6 +4,54 @@ const Token = require('../databases/Token');
 const { addDays, format, addMinutes } = require('date-fns');
 const nodemailer = require("nodemailer");
 const HospitalResource = require('../databases/HospitalResource');
+const Leave = require("../databases/Leave");
+
+const WEEKDAYS = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
+
+// department, dayName, date ke basis pe doctor pick karo
+async function pickDoctorForDay(dept, dayName, dateStr) {
+  const deptRegex = new RegExp(`^${dept}$`, "i");
+
+  // 1️⃣ Jo doctor is dept + is weekday pe OPD rakhte hain
+  const scheduledDoctors = await Doctor.find({
+    department: { $regex: deptRegex },
+    opdDays: dayName,
+  });
+
+  // Helper to filter out leaves
+  async function filterNotOnLeave(doctors) {
+    if (!doctors.length) return [];
+    const ids = doctors.map((d) => d._id);
+    const leaves = await Leave.find({ doctor: { $in: ids }, date: dateStr });
+    const onLeaveSet = new Set(leaves.map((l) => String(l.doctor)));
+    return doctors.filter((d) => !onLeaveSet.has(String(d._id)));
+  }
+
+  let available = await filterNotOnLeave(scheduledDoctors);
+
+  if (available.length > 0) return available[0];
+
+  // 2️⃣ Agar scheduled doctor sab leave pe hain → same dept ke koi aur doctor dhoondo
+  const otherDoctors = await Doctor.find({
+    department: { $regex: deptRegex },
+    _id: { $nin: scheduledDoctors.map((d) => d._id) },
+  });
+
+  available = await filterNotOnLeave(otherDoctors);
+
+  if (available.length > 0) return available[0];
+
+  // 3️⃣ Bilkul koi doctor available nahi
+  return null;
+}
 
 
 exports.viewResources = async (req, res) => {
@@ -38,103 +86,89 @@ function buildSlotsForDay(dateObj, avgConsultMins) {
   return slots;
 }
 
+
+
+// GET /get-available-slots?department=Cardiology
 // GET /get-available-slots?department=Cardiology
 exports.getAvailableSlots = async (req, res) => {
   try {
+if (!req.session.patientId) {
+    return res.send("⚠ Please login as a patient to book slots.");
+}
+
     const { department } = req.query;
-    if (!department) return res.send('❌ Please select a department.');
+    if (!department) return res.send("❌ Please select a department.");
 
     const dept = department.trim();
-    console.log('getAvailableSlots - department received:', JSON.stringify(dept));
+    console.log("getAvailableSlots - department:", JSON.stringify(dept));
 
-    // find doctor case-insensitively
-    const doctor = await Doctor.findOne({
-      department: { $regex: new RegExp(`^${dept}$`, 'i') }
-    });
+    const deptRegex = new RegExp(`^${dept}$`, "i");
 
-    if (!doctor) {
-      console.log('getAvailableSlots - doctor not found for:', dept);
-      return res.send('❌ Doctor not found.');
+    // Quick check: is department ke koi doctor hai bhi?
+    const anyDoctor = await Doctor.exists({ department: { $regex: deptRegex } });
+    if (!anyDoctor) {
+      return res.send("❌ No doctor found for this department.");
     }
 
     const availableDays = [];
     const today = new Date();
 
-    // For next 7 days
-  for (let i = 1; i <= 7; i++) {
+    // Next 7 days (kal se)
+    for (let i = 1; i <= 7; i++) {
       const dayObj = addDays(today, i);
       const dateStr = toDateString(dayObj); // YYYY-MM-DD
+      const dayName = WEEKDAYS[dayObj.getDay()];
 
-      // 🔴 Check if doctor is on leave that day
-      const onLeave = await Leave.exists({
-        doctor: doctor._id,
-        date: dateStr
-      });
+      // 🔍 Pick doctor for this date
+      const doctorForDay = await pickDoctorForDay(dept, dayName, dateStr);
 
-      if (onLeave) {
-        // is din ke slots hi mat dikhana
-        continue;
-      }
+      // Agar is date ke liye koi doctor available hi nahi → skip this date
+      if (!doctorForDay) continue;
 
-      // generate all slots (9:00–12:30)
-      let slots = buildSlotsForDay(dayObj, doctor.avgConsultTime || 10);
+      // generate all slots (9:00–12:30) based on that doctor's avgConsultTime
+      let slots = buildSlotsForDay(dayObj, doctorForDay.avgConsultTime || 10);
 
       // ❌ Remove offline reserved (every alternate slot)
       slots = slots.filter((_, index) => index % 2 === 0);
 
-      // create slot → token map (like D1, D2, D3...)
-      const deptPrefix = doctor.department[0].toUpperCase(); // e.g. Dermatology -> D
-      const slotTokenMap = {};
-      slots.forEach((slot, index) => {
-        slotTokenMap[slot.trim().toUpperCase()] = `${deptPrefix}${index + 1}`;
-      });
-
       // find booked tokens for this doctor + date
       const bookedTokens = await Token.find({
-        'doctor.id': doctor._id,
-        date: dateStr
+        "doctor.id": doctorForDay._id,
+        date: dateStr,
       });
 
       const bookedTimes = bookedTokens
-        .filter(t => t.timeSlot || t.estimatedTime)
-        .map(t => (t.timeSlot || t.estimatedTime).trim().toUpperCase());
+        .filter((t) => t.timeSlot || t.estimatedTime)
+        .map((t) => (t.timeSlot || t.estimatedTime).trim().toUpperCase());
 
-      const slotStatus = slots.map(slot => ({
+      const slotStatus = slots.map((slot) => ({
         time: slot,
-        booked: bookedTimes.includes(slot.trim().toUpperCase())
+        booked: bookedTimes.includes(slot.trim().toUpperCase()),
       }));
 
       availableDays.push({
         date: dateStr,
-        slots: slotStatus
+        dayName,
+        doctor: {
+          id: doctorForDay._id,
+          name: doctorForDay.name,
+          department: doctorForDay.department,
+        },
+        slots: slotStatus,
       });
     }
 
-    // Render page
-    return res.render('availableSlots', {
-      doctor,
+    return res.render("availableSlots", {
+      departmentName: dept,
       availableDays,
-      patientId: req.session.patientId || null
+      patientId: req.session.patientId || null,
     });
-
   } catch (err) {
-    console.error('Error fetching slots:', err);
-    return res.status(500).send('🚫 Failed to load available slots.');
+    console.error("Error fetching slots:", err);
+    return res.status(500).send("🚫 Failed to load available slots.");
   }
 };
 
-    // Render page
-    return res.render('availableSlots', {
-      doctor,
-      availableDays,
-      patientId: req.session.patientId || null
-    });
-
-  } catch (err) {
-    console.error('Error fetching slots:', err);
-    return res.status(500).send('🚫 Failed to load available slots.');
-  }
-};
 
 //configure node mailer
 const transporter=nodemailer.createTransport({
@@ -320,7 +354,7 @@ if (io) {
       msg: `
         ✅ <b>OPD Token Generated Successfully!</b><br>
         Doctor: ${doctor.name}<br>
-        Token No: ${newToken.tokenNumber}<br>
+        Token No: ${newToken.customToken}<br>
         Date: ${selected}<br>
         Time: ${timeSlot}<br>
         Mode: ${mode}
