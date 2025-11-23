@@ -52,7 +52,8 @@ exports.leaveForm = async (req, res) => {
     const todayStr = today.toISOString().split("T")[0];
 
     const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    const todayDay = WEEKDAYS[today.getDay()];
+   const todayDay = new Date().toLocaleDateString("en-US", { weekday: "long" });
+
 
     const upcomingLeaves = await Leave.find({
       doctor: doctor._id,
@@ -84,6 +85,7 @@ exports.markLeave = async (req, res) => {
   try {
     const doctor = await Doctor.findById(req.params.id);
     if (!doctor) return res.send("Doctor not found");
+const upcomingLeaves = await Leave.find({ doctor: doctor._id });
 
     const { leaveDate, reason } = req.body;
     const todayStr = new Date().toISOString().split("T")[0];
@@ -92,6 +94,8 @@ exports.markLeave = async (req, res) => {
       return res.render("doctorLeave", {
         doctor,
         todayStr,
+        todayDay,
+         upcomingLeaves,
         error: "Please select a leave date.",
         success: null,
       });
@@ -101,6 +105,8 @@ exports.markLeave = async (req, res) => {
       return res.render("doctorLeave", {
         doctor,
         todayStr,
+        todayDay,
+         upcomingLeaves,
         error: "Leave date cannot be in the past.",
         success: null,
       });
@@ -192,6 +198,8 @@ exports.markLeave = async (req, res) => {
     return res.render("doctorLeave", {
       doctor,
       todayStr,
+      todayDay,
+       upcomingLeaves,
       error: null,
       success:
         "Leave saved and patients handled (reassigned to another doctor or cancelled).",
