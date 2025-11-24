@@ -45,14 +45,39 @@
 <body>
 
 <nav class="navbar navbar-dark bg-primary">
-    <div class="container">
-        <span class="navbar-brand title-text">MediBridge</span>
+  <div class="container">
+    <span class="navbar-brand title-text">MediBridge</span>
 
-         <a href="/login" class="navbar-brand title-text">login</a>
-  <a href="/register" class="navbar-brand title-text">Register</a>
-    <a href="/profile" class="navbar-brand title-text">Profile</a>
-    </div>
+    <% if (!patientId) { %>
+      <!-- Not logged in -->
+      <a href="/login" class="btn btn-light me-2">Login</a>
+      <a href="/register" class="btn btn-outline-light me-2">Register</a>
+
+      <!-- FIX: send user to login instead of POST route -->
+      <a href="/login" class="btn btn-danger">Become a Donor</a>
+      
+    <% } else { %>
+      <!-- Logged-in user -->
+      <a href="/profile" class="btn btn-outline-light me-2">Profile</a>
+
+      <% if (!isDonor) { %>
+        <!-- Existing patient but not donor -->
+        <a href="/donor/become" class="btn btn-danger me-2">Become a Donor</a>
+      <% } else { %>
+        <!-- Already donor -->
+        <a href="/donor/donate" class="btn btn-success me-2">Already a Donor</a>
+      <% } %>
+
+      <form action="/logout" method="POST" class="d-inline">
+        <button class="btn btn-light">Logout</button>
+      </form>
+
+    <% } %>
+  </div>
 </nav>
+
+
+
 
 <div class="container my-5">
 

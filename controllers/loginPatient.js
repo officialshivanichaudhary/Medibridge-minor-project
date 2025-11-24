@@ -1,37 +1,41 @@
-const patient=require("../databases/patients.js");
-const bcrypt=require("bcryptjs");
+const patient = require("../databases/patients.js");
+const Donor = require("../databases/Donor");
+const bcrypt = require("bcryptjs");
 
+const loginPatient = async function (req, res) {
+  const { email, password } = req.body;
 
-
-const  loginPatient=async function(req,res){
-    const{email,password}=req.body;
-
-    //if user not exist redirect to register page
-const existingPatient= await patient.findOne({email});
-if(!existingPatient){
+  const existingPatient = await patient.findOne({ email });
+  if (!existingPatient) {
     return res.render("register", { message: "User not found. Please register." });
-}
+  }
 
-//compare password
-const ismatch=await bcrypt.compare(password,existingPatient.password);
-if(!ismatch){
-  return res.render("login", { error: "Invalid email or password" });
-}
+  const ismatch = await bcrypt.compare(password, existingPatient.password);
+  if (!ismatch) {
+    return res.render("login", { error: "Invalid email or password" });
+  }
 
-//save datain session after login
-req.session.patientId = existingPatient._id;
-req.session.patientName = existingPatient.name;
-req.session.patientEmail = existingPatient.email;
+  // Save session (patient login successful)
+  req.session.patientId = existingPatient._id;
+  req.session.patientName = existingPatient.name;
+  req.session.patientEmail = existingPatient.email;
+req.session.bloodGroup = existingPatient.bloodGroup || null;
 
+  // Check if patient is also a donor
+  const donor = await Donor.findOne({
+    email: existingPatient.email,
+    isActive: true
+  });
 
-//login success
-res.render("profile", {
-  name: req.session.patientName,
-  email: req.session.patientEmail,
-  patientId: req.session.patientId,
-  token: req.session.token || null
-});
+  req.session.isDonor = donor ? true : false;
 
-}
+  // Render profile
+  return res.render("profile", {
+    name: existingPatient.name,
+    email: existingPatient.email,
+    patientId: existingPatient._id,
+    isDonor: req.session.isDonor
+  });
+};
 
-module.exports=loginPatient;
+module.exports = loginPatient;

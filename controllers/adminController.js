@@ -5,6 +5,8 @@ const Resource = require("../databases/HospitalResource"); // create this model
 const nodemailer = require("nodemailer");
 const Patient = require("../databases/patients"); 
 const Leave = require("../databases/Leave");
+const Donor = require("../databases/Donor"); 
+
 
 // Your transporter
 const transporter = nodemailer.createTransport({
@@ -310,7 +312,23 @@ exports.updateResources = async (req, res) => {
       updateObj.bloodStock[bg] = body[`blood_${bg}`];
     });
 
-    await Resource.findOneAndUpdate({}, updateObj, { new: true });
+       
+    const updated = await Resource.findOneAndUpdate({}, updateObj, { new: true });
+
+    
+    const THRESHOLD = 4; 
+
+    for (const bg of bloodGroups) {
+      const units = Number(updated.bloodStock[bg] || 0);
+
+      if (units > 0 && units <= THRESHOLD) {
+        await notifyDonorsLowStock(bg, units);
+      }
+    }
+
+
+
+
 
     res.redirect("/admin/dashboard");
 
@@ -319,29 +337,6 @@ exports.updateResources = async (req, res) => {
     res.send("Error updating resources.");
   }
 };
-
-
-// 🔴 Auto Email Alert Function
-async function sendLowBloodAlert(group, units) {
-  const mail = {
-    from: "dobhaal2005@gmail.com",
-    to: "all-donors@example.com",
-    subject: `Urgent Blood Requirement: ${group}`,
-    html: `
-      <h2>⚠ Low Blood Alert</h2>
-      <p>We are critically low on <b>${group}</b> blood group.</p>
-      <p>Available Units: <b>${units}</b></p>
-      <p>Please donate immediately at the hospital.</p>
-    `
-  };
-
-  try {
-    await transporter.sendMail(mail);
-    console.log(`🚨 Blood Alert Email Sent for ${group}`);
-  } catch (err) {
-    console.log("Email failed:", err);
-  }
-}
 
 exports.viewDoctors = async (req, res) => {
     const doctors = await Doctor.find();
@@ -414,51 +409,88 @@ exports.updateDoctor = async (req, res) => {
 
 
 
+const pickDoctorForDay = require("../utils/pickDoctor");
+
 exports.generateOfflineToken = async (req, res) => {
   console.log("BODY RECEIVED:", req.body);
 
+  try {
     const { patientName, department } = req.body;
 
-    const today = new Date().toISOString().split("T")[0];
+    const now = new Date();
+    const todayStr = now.toISOString().split("T")[0];
+    const dayName = WEEKDAYS[now.getDay()];
 
-    // Fetch a doctor of that department
-    const doctor = await Doctor.findOne({ department,
-  $or: [
-      { onLeaveDates: { $exists: false } },
-      { onLeaveDates: { $ne: today } }
-    ]
-    });
+    // 🔍 Pick doctor using SAME logic as online booking
+    const doctor = await pickDoctorForDay(department, dayName, todayStr);
 
     if (!doctor) {
-        return res.send("No doctor available for this department today.");
+      return res.send("No doctor available for this department today.");
     }
 
-    // Find last token for today and this doctor
+    // 🔢 Find last offline token for today
     const last = await Token.findOne({
-        "doctor.id": doctor._id,
-        date: today,
-        mode: "Offline"
+      "doctor.id": doctor._id,
+      date: todayStr,
+      mode: "Offline"
     }).sort({ tokenNumber: -1 });
 
     const next = last ? last.tokenNumber + 1 : 1;
 
+    // 🆕 Create token
     const newToken = await Token.create({
-        tokenNumber: next,
-        customToken: `O${next}`,
-        doctor: {
-            id: doctor._id,
-            name: doctor.name,
-            department: doctor.department
-        },
-        offlineName: patientName,
-        patientId: null,
-        date: today,
-        timeSlot: "Offline",
-        mode: "Offline"
+      tokenNumber: next,
+      customToken: `O${next}`,
+      doctor: {
+        id: doctor._id,
+        name: doctor.name,
+        department: doctor.department
+      },
+      offlineName: patientName,
+      patientId: null,
+      date: todayStr,
+      timeSlot: "Offline",
+      mode: "Offline"
     });
 
     req.session.lastOfflineToken = newToken;
 
     res.redirect("/admin/dashboard");
+
+  } catch (err) {
+    console.error("Offline token error:", err);
+    res.send("Something went wrong generating offline token.");
+  }
 };
 
+
+async function notifyDonorsLowStock(group, units) {
+  try {
+    const donors = await Donor.find({ bloodGroup: group, isActive: true });
+
+    if (!donors || donors.length === 0) {
+      console.log(`No donors found for blood group ${group}`);
+      return;
+    }
+
+    const recipients = donors.map(d => d.email);
+
+    const mail = {
+      from: "dobhaal2005@gmail.com",
+      to: recipients,  // array bhi de sakte ho
+      subject: `Urgent Blood Requirement: ${group}`,
+      html: `
+        <h2>⚠ Low Blood Alert (${group})</h2>
+        <p>We are critically low on <b>${group}</b> blood group.</p>
+        <p>Available Units: <b>${units}</b></p>
+        <p>If possible, please visit the hospital and donate.</p>
+        <p>Thank you for your support 🙏</p>
+      `
+    };
+
+    await transporter.sendMail(mail);
+    console.log(`🚨 Low stock email sent to ${donors.length} donors of ${group}`);
+  } catch (err) {
+    console.error("Error sending donor alert:", err);
+  }
+}

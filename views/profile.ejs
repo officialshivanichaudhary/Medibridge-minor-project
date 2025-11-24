@@ -6,6 +6,11 @@
 </head>
 <body>
  <h2>Welcome, <%= name %></h2>
+<% if (typeof donorSuccess !== 'undefined' && donorSuccess) { %>
+    <div class="alert alert-success">
+      <%= donorSuccess %>
+    </div>
+<% } %>
 
 <p>
   Email:

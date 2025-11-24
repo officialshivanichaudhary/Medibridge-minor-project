@@ -6,15 +6,19 @@ const loginPatient = require('../controllers/loginPatient');
 const isPatientLoggedIn = require('../middleware/isLoggedIn');
 const bookController = require('../controllers/patientController');
 const patientController = require('../controllers/patientController');
+const Patient = require("../databases/patients");
+
 
 // homepage
 router.get("/", async (req, res) => {
     const Resource = require("../databases/HospitalResource");
     const resources = await Resource.findOne();
-
+   // if loginPatient already set isDonor, reuse it
+  const isDonor = req.session.isDonor || false;
     res.render("home", {
         resources,
-        patientId: req.session.patientId || null
+        patientId: req.session.patientId || null,
+         isDonor
     });
 });
 
@@ -27,13 +31,21 @@ router.get('/login', (req, res) => res.render('login'));
 router.post('/login', loginPatient);
 
 // profile — always pass session data to the view
-router.get('/profile', isPatientLoggedIn, (req, res) => {
-  res.render('profile', {
-    name: req.session.patientName,
-    email: req.session.patientEmail,
-    patientId: req.session.patientId,
-    token: req.session.token || null
-  });
+router.get("/profile", async (req, res) => {
+    if (!req.session.patientId) return res.redirect("/login");
+
+    const patient = await Patient.findById(req.session.patientId);
+
+    const msg = req.session.donorSuccess;
+    req.session.donorSuccess = null; // clear after showing
+
+    res.render("profile", {
+        name: patient.name,
+        email: patient.email,
+        patientId: patient._id,
+        isDonor: req.session.isDonor,
+        donorSuccess: msg     // ⭐ message passed here
+    });
 });
 
 // show available slots (next 7 days starting tomorrow)

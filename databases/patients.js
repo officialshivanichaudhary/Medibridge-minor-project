@@ -9,6 +9,13 @@ const patientSchema=new mongoose.Schema({
     password:{type:String,required:true},
     age:{type:Number},
     gender:String,
+    bloodGroup: {
+    type: String,
+    enum: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
+  },
+
+  // optional flag if you want
+  isDonor: { type: Boolean, default: false },
     tokenBooked:[
         {
     type: mongoose.Schema.Types.ObjectId,
