@@ -6,20 +6,48 @@
 </head>
 <body>
  <h2>Welcome, <%= name %></h2>
+ <% if (typeof bloodGroupError !== 'undefined' && bloodGroupError) { %>
+  <div style="color: red; font-weight: bold; margin-bottom: 10px;">
+    <%= bloodGroupError %>
+  </div>
+<% } %>
+
 <% if (typeof donorSuccess !== 'undefined' && donorSuccess) { %>
     <div class="alert alert-success">
       <%= donorSuccess %>
     </div>
 <% } %>
 
-<p>
-  Email:
-  <span id="emailText"><%= email %></span>
-  <input type="email" id="emailInput" value="<%= email %>" style="display:none;">
-  <button id="editBtn" onclick="enableEdit()">✏️ Edit</button>
-  <button id="saveBtn" style="display:none;" onclick="saveEmail()">💾 Save</button>
-  <button id="cancelBtn" style="display:none;" onclick="cancelEdit()">❌ Cancel</button>
-</p>
+<h3>Update Profile</h3>
+
+<form action="/update-profile" method="POST">
+
+  <label>Email:</label>
+  <input type="email" name="email" value="<%= email %>" required>
+  <br><br>
+
+  <label>Phone:</label>
+  <input type="text" name="phone" value="<%= phone || '' %>">
+  <br><br>
+
+  <label>Blood Group:</label>
+  <select name="bloodGroup" required>
+    <option value="">-- Select --</option>
+    <option value="A+" <%= bloodGroup==="A+" ? "selected" : "" %>>A+</option>
+    <option value="A-" <%= bloodGroup==="A-" ? "selected" : "" %>>A-</option>
+    <option value="B+" <%= bloodGroup==="B+" ? "selected" : "" %>>B+</option>
+    <option value="B-" <%= bloodGroup==="B-" ? "selected" : "" %>>B-</option>
+    <option value="AB+" <%= bloodGroup==="AB+" ? "selected" : "" %>>AB+</option>
+    <option value="AB-" <%= bloodGroup==="AB-" ? "selected" : "" %>>AB-</option>
+    <option value="O+" <%= bloodGroup==="O+" ? "selected" : "" %>>O+</option>
+    <option value="O-" <%= bloodGroup==="O-" ? "selected" : "" %>>O-</option>
+  </select>
+  <br><br>
+
+  <button type="submit">Save Changes</button>
+</form>
+
+
 
   <h2>Book OPD Token (choose department)</h2>
   <form action="/get-available-slots" method="GET">
@@ -35,6 +63,10 @@
     <button type="submit">Show Available Slots</button>
   </form>
   <hr>
+  
+  <a href="/" class="btn btn-secondary mt-3">← Back to Home</a>
+
+
   <form action="/logout" method="POST">
     <button type="submit">Logout</button>
   </form>
@@ -59,7 +91,7 @@ function cancelEdit() {
   document.getElementById("cancelBtn").style.display = "none";
 }
 
-async function saveEmail() {
+async function validateEmail() {
   const newEmail = document.getElementById("emailInput").value.trim();
   if (!newEmail || !newEmail.includes("@")) {
     alert("⚠️ Please enter a valid email address!");

@@ -30,12 +30,16 @@ req.session.bloodGroup = existingPatient.bloodGroup || null;
   req.session.isDonor = donor ? true : false;
 
   // Render profile
-  return res.render("profile", {
-    name: existingPatient.name,
-    email: existingPatient.email,
-    patientId: existingPatient._id,
-    isDonor: req.session.isDonor
-  });
+res.render("profile", {
+  name: existingPatient.name,
+  email: existingPatient.email,
+  phone: existingPatient.phone || "",
+  bloodGroup: existingPatient.bloodGroup || "",
+  isDonor: req.session.isDonor || false,
+  donorSuccess: req.session.donorSuccess || null,
+  patientId: existingPatient._id,
+});
+
 };
 
 module.exports = loginPatient;

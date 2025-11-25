@@ -8,6 +8,9 @@ const patientSchema=new mongoose.Schema({
     phone:{type:String,required:true},
     password:{type:String,required:true},
     age:{type:Number},
+    emailVerified: { type: Boolean, default: false },
+otp: { type: String },
+otpExpires: { type: Date },
     gender:String,
     bloodGroup: {
     type: String,

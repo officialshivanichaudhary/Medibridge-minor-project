@@ -41,6 +41,13 @@ const registerPatient = async function (req, res) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+if (!req.session.emailVerified || req.session.registerEmail !== email) {
+  return res.render("register", {
+    error: "Please verify your email first.",
+  });
+}
+
+
     // CREATE PATIENT
     const createPatient = await Patient.create({
       name,
@@ -50,7 +57,8 @@ const registerPatient = async function (req, res) {
       age,
       gender,
       bloodGroup: bloodGroup || null,
-      isDonor: false
+      isDonor: false,
+        emailVerified: true
     });
 
     // ⭐ OPTIONAL: If user checks "Register as donor"

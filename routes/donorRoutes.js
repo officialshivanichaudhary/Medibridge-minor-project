@@ -23,6 +23,10 @@ router.get("/register", (req, res) => {
 });
 
 
+
+
+
+
 // 🩸 NEW USER → REGISTER DIRECTLY AS DONOR
 router.post("/register-new", async (req, res) => {
   try {
@@ -61,9 +65,15 @@ router.get("/become", async (req, res) => {
     const patient = await Patient.findById(req.session.patientId);
 
     if (!patient) return res.send("⚠ Patient not found.");
-
-    if (!patient.bloodGroup) {
-      return res.send("⚠ Please update your blood group in your profile.");
+ if (!patient.bloodGroup) {
+      return res.render("profile", {
+        name: patient.name,
+        email: patient.email,
+        phone: patient.phone || "",
+        bloodGroup: patient.bloodGroup || "",
+        donorSuccess: null,
+        bloodGroupError: "⚠ Please update your blood group to become a donor."
+      });
     }
 
     // Add to Donor collection
@@ -100,7 +110,15 @@ router.get("/become", async (req, res) => {
         `
     });
 
+ const Resource = require("../databases/HospitalResource");
+    const hospitalRes = await Resource.findOne({});
 
+    const units = hospitalRes.bloodStock[patient.bloodGroup];
+    const THRESHOLD = 4;
+
+    if (units > 0 && units <= THRESHOLD) {
+      await notifyDonorsLowStock(patient.bloodGroup, units);
+    }
   req.session.donorSuccess = "🎉 Thank you for becoming a Blood Donor!";
      return res.redirect("/");   // ✅ Redirect to home (NOT JSON)
 

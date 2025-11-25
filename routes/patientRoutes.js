@@ -7,7 +7,8 @@ const isPatientLoggedIn = require('../middleware/isLoggedIn');
 const bookController = require('../controllers/patientController');
 const patientController = require('../controllers/patientController');
 const Patient = require("../databases/patients");
-
+const transporter = require("../config_old/nodemailer");
+const otpStore = {};   // email → { otp, expires }
 
 // homepage
 router.get("/", async (req, res) => {
@@ -42,11 +43,102 @@ router.get("/profile", async (req, res) => {
     res.render("profile", {
         name: patient.name,
         email: patient.email,
+            phone: patient.phone || "",
+                bloodGroup: patient.bloodGroup || "",
         patientId: patient._id,
         isDonor: req.session.isDonor,
         donorSuccess: msg     // ⭐ message passed here
     });
 });
+
+router.post("/send-otp", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expires = Date.now() + 5 * 60 * 1000;
+
+        otpStore[email] = { otp, expires };
+ 
+
+    await transporter.sendMail({
+      from: "dobhaal2005@gmail.com",
+      to: email,
+      subject: "MediBridge Email Verification OTP",
+      html: `
+        <h2>🔐 Email Verification</h2>
+        <p>Your OTP is:</p>
+        <h1>${otp}</h1>
+        <p>This OTP will expire in <b>5 minutes</b>.</p>
+      `
+    });
+
+    res.json({ success: true, message: "OTP sent to email." });
+
+  } catch (err) {
+    console.log(err);
+    res.json({ success: false, message: "Error sending OTP." });
+  }
+});
+
+router.post("/verify-otp", (req, res) => {
+  const { email, otp } = req.body;
+
+  if (!otpStore[email])
+    return res.json({ success: false, message: "OTP not sent." });
+
+  const correctOTP = otpStore[email].otp;
+  const expires = otpStore[email].expires;
+
+  if (Date.now() > expires)
+    return res.json({ success: false, message: "OTP expired." });
+
+  if (otp !== correctOTP)
+    return res.json({ success: false, message: "Invalid OTP." });
+
+  // Mark verified
+  req.session.emailVerified = true;
+  req.session.registerEmail = email;
+
+  delete otpStore[email];
+
+  res.json({ success: true, message: "Email verified successfully!" });
+});
+
+
+
+
+
+// UPDATE PROFILE (email, phone, blood group)
+router.post("/update-profile", async (req, res) => {
+  try {
+    if (!req.session.patientId) return res.redirect("/login");
+
+    const patient = await Patient.findById(req.session.patientId);
+    if (!patient) return res.send("Patient not found.");
+
+    const { email, phone, bloodGroup } = req.body;
+
+    // Update fields (only if provided)
+    if (email) patient.email = email;
+    if (phone) patient.phone = phone;
+    if (bloodGroup) patient.bloodGroup = bloodGroup;
+
+    await patient.save();
+
+    // Update session also
+    req.session.patientEmail = patient.email;
+    req.session.bloodGroup = patient.bloodGroup;
+
+    res.redirect("/profile");
+
+  } catch (err) {
+    console.log(err);
+    res.send("Failed to update profile.");
+  }
+});
+
+
 
 // show available slots (next 7 days starting tomorrow)
 router.get('/get-available-slots', isPatientLoggedIn, bookController.getAvailableSlots);
