@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Medicine History | MediBridge</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    body { font-family: "Poppins", sans-serif; background:#f4f7fc; margin:0; }
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    h2 { text-align:center; margin-bottom:20px; }
+    table { width:100%; border-collapse:collapse; }
+    th, td { padding:10px 12px; border-bottom:1px solid #ddd; text-align:center; }
+    th { background:#007bff; color:white; }
+    tr:hover { background:#f5f5f5; }
+    .tag { padding:3px 8px; border-radius:10px; font-size:12px; }
+    .tag-expired { background:#ffe0e0; color:#c0392b; }
+  </style>
+</head>
+<body>
+  <header style="background:#006eff;color:#fff;padding:12px 30px;">
+    <span>💊 MediBridge Pharmacy – History</span>
+    <a href="/api/medicines/all" style="float:right;color:#fff;text-decoration:none;">
+      ← Back to Dashboard
+    </a>
+  </header>
+
+  <div class="container">
+    <h2>Expired / Removed Medicine History</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Medicine Name</th>
+          <th>Batch</th>
+          <th>Qty</th>
+          <th>Expiry Date</th>
+          <th>Removed On</th>
+          <th>Reason</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% history.forEach(item => { %>
+          <tr>
+            <td><%= item.name %></td>
+            <td><%= item.batchNumber %></td>
+            <td><%= item.quantity %></td>
+            <td><%= item.expiryDate ? item.expiryDate.toDateString() : "-" %></td>
+            <td><%= item.deletedAt ? item.deletedAt.toDateString() : "-" %></td>
+            <td><span class="tag tag-expired"><%= item.deleteReason %></span></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

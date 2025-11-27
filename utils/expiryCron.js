@@ -2,32 +2,43 @@ const cron = require("node-cron");
 const Medicine = require("../models/medicineModel");
 const Alert = require("../models/alertModel");
 
-// Run every 1 minute (for testing)
+// 🔁 Every 1 minute (for testing)
 cron.schedule("*/1 * * * *", async () => {
-  console.log("⏳ Checking medicine expiry...");
+  console.log("⏳ [CRON] Running expiry check...");
 
-  const medicines = await Medicine.find();
-  const today = new Date();
+  try {
+    const medicines = await Medicine.find();
+    const today = new Date();
 
-  for (let med of medicines) {
-    const exp = new Date(med.expiryDate);
-    const diffDays = Math.ceil((exp - today) / (1000 * 60 * 60 * 24));
+    // ✅ For testing: clear all old alerts so we always see fresh ones
+    await Alert.deleteMany({});
+    console.log("🧹 [CRON] Cleared old alerts collection");
 
-    // ✅ DO NOT create duplicate alerts
-    const exists = await Alert.findOne({
-      medicine: med.name,
-      batchNumber: med.batchNumber
-    });
+    for (const med of medicines) {
+      const exp = new Date(med.expiryDate);
+      const diffDays = Math.ceil((exp - today) / (1000 * 60 * 60 * 24));
 
-    if (!exists && diffDays <= 30) {
-      await Alert.create({
-        medicine: med.name,
-        batchNumber: med.batchNumber,
-        daysLeft: diffDays < 0 ? 0 : diffDays
-      });
+      console.log(
+        `🔍 [CRON] ${med.name} (batch ${med.batchNumber}) → diffDays = ${diffDays}`
+      );
 
-      console.log(`⚠️ Alert Created → ${med.name} | Expiry in ${diffDays} days`);
+      // 👉 Only NEAR EXPIRY (0–30 days) for now
+      if (diffDays >= 0 && diffDays <= 30) {
+        const alertDoc = await Alert.create({
+          medicine: med.name,
+          batchNumber: med.batchNumber,
+          daysLeft: diffDays,
+        });
+
+        console.log(
+          `⚠️ [CRON] Alert CREATED for ${alertDoc.medicine} → ${alertDoc.daysLeft} days left`
+        );
+      }
     }
+
+    console.log("✅ [CRON] Expiry check completed");
+  } catch (err) {
+    console.error("❌ [CRON] Error in expiryCron:", err);
   }
 });
 

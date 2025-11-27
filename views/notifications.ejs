@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Notifications | MediBridge</title>
+  <style>
+    body { font-family: Poppins, sans-serif; background: #f4f7fc; }
+    .container { width: 70%; margin: 40px auto; background:white; padding:25px; border-radius:12px; }
+    h2 { text-align:center; margin-bottom:20px; }
+    .alert-box { background:#fff3cd; padding:12px; border-left:5px solid #ffae00; margin-bottom:12px; border-radius:6px; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>🔔 Expiry Notifications</h2>
+
+    <% if (alerts.length === 0) { %>
+      <p style="text-align:center; color:gray;">No active alerts</p>
+    <% } %>
+
+    <% alerts.forEach(a => { %>
+      <div class="alert-box">
+        ⚠ Medicine <strong><%= a.medicine %></strong> (Batch <%= a.batchNumber %>) expires in <strong><%= a.daysLeft %></strong> days.
+      </div>
+    <% }) %>
+  </div>
+
+</body>
+</html>

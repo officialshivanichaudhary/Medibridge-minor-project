@@ -1,16 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <title>MediBridge Pharmacy Login</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: #f4f7fc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .card {
+      background: white;
+      padding: 30px 35px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      width: 360px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #006eff;
+    }
+    label {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    input {
+      width: 100%;
+      padding: 8px 10px;
+      margin: 6px 0 16px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      outline: none;
+    }
+    input:focus {
+      border-color: #006eff;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #006eff;
+      border: none;
+      color: white;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #004bb3;
+    }
+    .error {
+      color: #d32f2f;
+      font-size: 13px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .hint {
+      font-size: 12px;
+      margin-top: 8px;
+      color: #555;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-    <form action="/login" method="post">
-    <input type="email" placeholder="enter email" name="email">
-    <input type="password" placeholder="enter password" name="password">
-    <button type="submit">Login</button>
+  <div class="card">
+    <h2>MediBridge Pharmacy Login</h2>
+
+    <% if (error) { %>
+      <div class="error"><%= error %></div>
+    <% } %>
+
+    <form method="POST" action="/login">
+      <label>Email</label>
+      <input type="email" name="email" required placeholder="pharmacy@gmail.com">
+
+      <label>Password</label>
+      <input type="password" name="password" required placeholder="********">
+
+      <button type="submit">Login</button>
     </form>
-    
+
+    <div class="hint">
+      Don't have an account? Contact admin to register.
+  </div>
 </body>
 </html>

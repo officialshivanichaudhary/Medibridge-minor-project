@@ -210,9 +210,25 @@
 
   <!-- ✅ HEADER -->
   <header>
-    <div class="logo">💊 MediBridge Pharmacy</div>
+  <div class="logo">💊 MediBridge Pharmacy</div>
+
+  <div class="nav-actions">
+    <!-- 🔔 Notification Bell -->
+    <a href="/api/medicines/notifications" class="notification-bell" title="Expiry Alerts">
+  <span>🔔</span>
+  <% if (alerts && alerts.length > 0) { %>
+    <span class="badge"><%= alerts.length %></span>
+  <% } %>
+</a>
+
+    <!-- Existing buttons -->
     <button onclick="window.location.href='/api/medicines/add'">+ Add Medicine</button>
-  </header>
+    <button onclick="window.location.href='/api/medicines/history'">📜 View History</button>
+    <button onclick="window.location.href='/logout'">Logout</button>
+
+  </div>
+</header>
+
 
   <!-- ✅ MAIN DASHBOARD -->
   <div class="container">
@@ -281,7 +297,7 @@
 
   <!-- ✅ FOOTER -->
   <footer>
-    © 2024 MediBridge Pharmacy | All rights reserved.
+    © 2025 MediBridge Pharmacy | All rights reserved.
   </footer>
 </body>
 </html>
