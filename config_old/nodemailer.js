@@ -7,5 +7,5 @@ const transporter = nodemailer.createTransport({
         pass: "eqrp bivz btry chjm"  
     }
 });
-
+console.log("Email Transporter Configured Successfully");
 module.exports = transporter;

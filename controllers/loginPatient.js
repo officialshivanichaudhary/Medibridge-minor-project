@@ -2,8 +2,19 @@ const patient = require("../databases/patients.js");
 const Donor = require("../databases/Donor");
 const bcrypt = require("bcryptjs");
 
+
 const loginPatient = async function (req, res) {
   const { email, password } = req.body;
+  
+// 1️⃣ Admin Login Check Through .env
+  if (
+    email === process.env.ADMIN_EMAIL &&
+    password === process.env.ADMIN_PASSWORD
+  ) {
+    req.session.isAdmin = true;
+    req.session.patientId = null; 
+    return res.redirect("/admin/dashboard");
+  }
 
   const existingPatient = await patient.findOne({ email });
   if (!existingPatient) {
@@ -16,6 +27,7 @@ const loginPatient = async function (req, res) {
   }
 
   // Save session (patient login successful)
+    req.session.isAdmin = false;
   req.session.patientId = existingPatient._id;
   req.session.patientName = existingPatient.name;
   req.session.patientEmail = existingPatient.email;

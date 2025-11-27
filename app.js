@@ -3,6 +3,7 @@ const app = express();
 const session = require("express-session");
 const http = require("http");
 const { Server } = require("socket.io"); // ✅ Added import
+require('dotenv').config();
 
 // ✅ Create an HTTP server for both Express + Socket.IO
 const server = http.createServer(app);
