@@ -5,157 +5,174 @@
   <title>Pharmacy Dashboard | MediBridge</title>
   <link rel="stylesheet" href="/styles.css">
   <style>
-    body {
-      font-family: "Poppins", sans-serif;
-      margin: 0;
-      background-color: #f4f7fc;
-    }
-    
+  /* 👇 NEW: page ko full width pe lock kar diya */
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;   /* right/left swipe wala scroll band */
+  }
 
-    /* --- HEADER --- */
-    header {
-      background-color: #006eff;
-      color: white;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 40px;
-      font-size: 18px;
-      font-weight: 500;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    }
+  body {
+    font-family: "Poppins", sans-serif;
+    position: relative;   /* background overlay ke liye */
+    min-height: 100vh;
+  }
 
-    header .logo {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 20px;
-    }
+  /* 👇 NEW: proper blurred background image, white patch nahi aayega */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0; /* top:0; right:0; bottom:0; left:0; */
+    background: url("/images/login-bg.jpg") center/cover no-repeat;
+    filter: blur(4px);
+    z-index: -1;          /* sabke peeche rahega */
+    transform: scale(1.05); /* edges pe white line na aaye, thoda zoom */
+  }
 
-    header button {
-      background: white;
-      color: #006eff;
-      border: none;
-      padding: 8px 15px;
-      border-radius: 6px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.3s;
-    }
+  /* --- HEADER --- */
+  header {
+    background-color: #006eff;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    font-size: 18px;
+    font-weight: 500;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
 
-    header button:hover {
-      background: #004bb3;
-      color: white;
-    }
+  header .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 20px;
+  }
 
-    /* --- MAIN CONTAINER --- */
-    .container {
-      max-width: 1000px;
-      margin: 40px auto;
-      background: white;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    }
+  header button {
+    background: white;
+    color: #006eff;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+  }
 
-    h2 {
-      text-align: center;
-      margin-bottom: 25px;
-      color: #222;
-      font-weight: 600;
-    }
+  header button:hover {
+    background: #004bb3;
+    color: white;
+  }
 
-    /* --- DASHBOARD CARDS --- */
-    .stats-container {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 15px;
-      margin-bottom: 25px;
-    }
+  /* --- MAIN CONTAINER --- */
+  .container {
+    max-width: 1000px;
+    margin: 40px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
 
-    .card {
-      padding: 10px 25px;
-      border-radius: 10px;
-      font-weight: 600;
-      color: white;
-      text-align: center;
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
-    }
+  h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #222;
+    font-weight: 600;
+  }
 
-    .bg-primary { background: #007bff; }
-    .bg-success { background: #28a745; }
-    .bg-warning { background: #ffc107; color: #222; }
-    .bg-danger { background: #dc3545; }
+  /* --- DASHBOARD CARDS --- */
+  .stats-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 25px;
+  }
 
-    /* --- TABLE STYLING --- */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-      background: white;
-      border-radius: 8px;
-      overflow: hidden;
-    }
+  .card {
+    padding: 10px 25px;
+    border-radius: 10px;
+    font-weight: 600;
+    color: white;
+    text-align: center;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  }
 
-    th, td {
-      padding: 12px 15px;
-      text-align: center;
-      border-bottom: 1px solid #ddd;
-    }
+  .bg-primary { background: #007bff; }
+  .bg-success { background: #28a745; }
+  .bg-warning { background: #ffc107; color: #222; }
+  .bg-danger  { background: #dc3545; }
 
-    th {
-      background: #007bff;
-      color: white;
-    }
+  /* --- TABLE STYLING --- */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+  }
 
-    tr:hover {
-      background: #f1f1f1;
-    }
+  th, td {
+    padding: 12px 15px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+  }
 
-    /* --- BUTTONS --- */
-    .btn {
-      border: none;
-      padding: 6px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: 0.3s;
-    }
+  th {
+    background: #007bff;
+    color: white;
+  }
 
-    .btn-warning {
-      background: #ffc107;
-      color: #222;
-    }
+  tr:hover {
+    background: #f1f1f1;
+  }
 
-    .btn-warning:hover { background: #e0a800; }
+  /* --- BUTTONS --- */
+  .btn {
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
+  }
 
-    .btn-danger {
-      background: #dc3545;
-      color: white;
-    }
+  .btn-warning {
+    background: #ffc107;
+    color: #222;
+  }
+  .btn-warning:hover { background: #e0a800; }
 
-    .btn-danger:hover { background: #b02a37; }
+  .btn-danger {
+    background: #dc3545;
+    color: white;
+  }
+  .btn-danger:hover { background: #b02a37; }
 
-    .status {
-      font-weight: bold;
-    }
+  .status {
+    font-weight: bold;
+  }
+  .status.active  { color: #28a745; }
+  .status.near    { color: #ff9800; }
+  .status.expired { color: #dc3545; }
 
-    .status.active { color: #28a745; }
-    .status.near { color: #ff9800; }
-    .status.expired { color: #dc3545; }
+  /* --- FOOTER --- */
+  footer {
+    background: #006eff;
+    color: white;
+    text-align: center;
+    padding: 15px;
+    margin-top: 40px;
+    font-size: 14px;
+    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.2);
+  }
+</style>
 
-    /* --- FOOTER --- */
-    footer {
-      background: #006eff;
-      color: white;
-      text-align: center;
-      padding: 15px;
-      margin-top: 40px;
-      font-size: 14px;
-      box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.2);
-    }
-  </style>
+
 </head>
 <!-- ✅ Toast Notification Box -->
 <div id="toast" class="toast">

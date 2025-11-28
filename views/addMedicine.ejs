@@ -1,32 +1,189 @@
 <%- include('partials/header') %>
 
-<h3>Add New Medicine</h3>
-<form action="/api/medicines/add" method="POST" class="mt-3">
-  <div class="mb-2">
-    <label>Medicine Name</label>
-    <input type="text" name="name" class="form-control" required>
-  </div>
-  <div class="mb-2">
-    <label>Batch Number</label>
-    <input type="text" name="batchNumber" class="form-control">
-  </div>
-  <div class="mb-2">
-    <label>Quantity</label>
-    <input type="number" name="quantity" class="form-control">
-  </div>
-  <div class="mb-2">
-    <label>Manufacture Date</label>
-    <input type="date" name="manufactureDate" class="form-control">
-  </div>
-  <div class="mb-2">
-    <label>Expiry Date</label>
-    <input type="date" name="expiryDate" class="form-control" required>
-  </div>
-  <div class="mb-2">
-    <label>Supplier</label>
-    <input type="text" name="supplier" class="form-control">
-  </div>
-  <button class="btn btn-primary mt-2">Add Medicine</button>
-</form>
+<style>
+  body {
+  font-family: "Poppins", sans-serif;
+  margin: 0;
+  background: url("/images/login-bg.jpg") center/cover no-repeat fixed;
+  backdrop-filter: blur(6px);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 30px;
+  padding-bottom: 60px;
+}
 
-<%- include('partials/footer') %>
+  .add-page-wrapper {
+  max-width: 900px;
+  margin: 70px auto;
+  padding: 30px 30px 35px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.92);   /* light transparency */
+  backdrop-filter: blur(4px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.22);
+}
+
+  .add-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+  }
+
+  .add-page-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #222;
+    margin: 0;
+  }
+
+  .add-page-subtitle {
+    font-size: 13px;
+    color: #666;
+    margin-top: 4px;
+  }
+
+  .add-page-back {
+    font-size: 13px;
+    color: #006eff;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .add-page-back:hover {
+    text-decoration: underline;
+  }
+
+  /* Form grid like dashboard card style */
+  .med-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px 24px;
+    margin-top: 10px;
+  }
+
+  .med-form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  .med-form-group input {
+    border-radius: 8px;
+    border: 1px solid #d0d7e2;
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+
+  .med-form-group input:focus {
+    border-color: #006eff;
+    box-shadow: 0 0 0 2px rgba(0,110,255,0.15);
+    outline: none;
+  }
+
+  .add-page-actions {
+    margin-top: 24px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  .btn-primary {
+    background-color: #006eff;
+    border-color: #006eff;
+    border-radius: 999px;
+    padding-inline: 28px;
+    font-weight: 600;
+  }
+
+  .btn-primary:hover {
+    background-color: #0054c4;
+    border-color: #0054c4;
+  }
+
+  .btn-outline {
+    border-radius: 999px;
+    border: 1px solid #d0d7e2;
+    background: #f8f9fc;
+    color: #444;
+    font-weight: 500;
+    padding-inline: 20px;
+  }
+
+  .btn-outline:hover {
+    background: #e9edf7;
+  }
+
+  @media (max-width: 576px) {
+    .add-page-wrapper {
+      margin: 20px 16px 30px;
+      padding: 22px 18px 24px;
+    }
+    .add-page-title {
+      font-size: 20px;
+    }
+  }
+</style>
+
+<div class="add-page-wrapper">
+  <div class="add-page-header">
+    <div>
+      <h3 class="add-page-title">Add New Medicine</h3>
+      <p class="add-page-subtitle">
+        Keep your pharmacy stock updated with correct batch and expiry details.
+      </p>
+    </div>
+    <a href="/api/medicines/all" class="add-page-back">← Back to Dashboard</a>
+  </div>
+
+  <!-- ⚠️ ROUTE, METHOD & FIELD NAMES SAME HI RAKHE GAYE HAIN -->
+  <form action="/api/medicines/add" method="POST">
+    <div class="med-form-grid">
+
+      <div class="med-form-group">
+        <label>Medicine Name<span style="color:#e53935;"> *</span></label>
+        <input type="text" name="name" class="form-control" required>
+      </div>
+
+      <div class="med-form-group">
+        <label>Batch Number</label>
+        <input type="text" name="batchNumber" class="form-control">
+      </div>
+
+      <div class="med-form-group">
+        <label>Quantity</label>
+        <input type="number" name="quantity" class="form-control" min="0">
+      </div>
+
+      <div class="med-form-group">
+        <label>Manufacture Date</label>
+        <input type="date" name="manufactureDate" class="form-control">
+      </div>
+
+      <div class="med-form-group">
+        <label>Expiry Date<span style="color:#e53935;"> *</span></label>
+        <input type="date" name="expiryDate" class="form-control" required>
+      </div>
+
+      <div class="med-form-group">
+        <label>Supplier</label>
+        <input type="text" name="supplier" class="form-control">
+      </div>
+    </div>
+
+    <div class="add-page-actions">
+      <button type="button"
+              class="btn btn-outline"
+              onclick="window.location.href='/api/medicines/all'">
+        Cancel
+      </button>
+      <button class="btn btn-primary" type="submit">
+        Add Medicine
+      </button>
+    </div>
+  </form>
+</div>
+

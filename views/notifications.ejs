@@ -1,29 +1,155 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
   <title>Notifications | MediBridge</title>
   <style>
-    body { font-family: Poppins, sans-serif; background: #f4f7fc; }
-    .container { width: 70%; margin: 40px auto; background:white; padding:25px; border-radius:12px; }
-    h2 { text-align:center; margin-bottom:20px; }
-    .alert-box { background:#fff3cd; padding:12px; border-left:5px solid #ffae00; margin-bottom:12px; border-radius:6px; }
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      /* 🔹 Same background as login & dashboard */
+      background: url("/images/login-bg.jpg") center/cover no-repeat fixed;
+      backdrop-filter: blur(4px);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 40px 16px;
+    }
+
+    /* 🔹 Top blue bar */
+    .top-bar {
+      width: 100%;
+      max-width: 1100px;
+      background: #006eff;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 999px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+      margin-bottom: 24px;
+    }
+
+    .top-bar .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 18px;
+    }
+
+    .top-bar a.back-link {
+      color: #fff;
+      text-decoration: none;
+      font-size: 14px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      background: rgba(0, 0, 0, 0.12);
+      transition: 0.2s;
+    }
+
+    .top-bar a.back-link:hover {
+      background: rgba(255, 255, 255, 0.16);
+    }
+
+    /* 🔹 Main notification card */
+    .container {
+      width: 100%;
+      max-width: 900px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 26px 28px 30px;
+      border-radius: 18px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+    }
+
+    h2 {
+      text-align: center;
+      margin: 0 0 6px;
+      font-size: 24px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    .empty-text {
+      text-align: center;
+      color: gray;
+      font-size: 14px;
+      padding: 16px 0;
+    }
+
+    .alert-box {
+      background: #fff8e1;
+      padding: 12px 14px;
+      border-left: 5px solid #ffae00;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      font-size: 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .alert-icon {
+      margin-top: 2px;
+    }
+
+    .alert-content strong {
+      color: #c77a00;
+    }
+
+    .badge-chip {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #fff3cd;
+      border: 1px solid #ffec99;
+      margin-left: 6px;
+      color: #8a6d3b;
+    }
   </style>
 </head>
 <body>
 
+  <!-- 🔹 Notifications Card -->
   <div class="container">
     <h2>🔔 Expiry Notifications</h2>
+    <div class="subtitle">
+      Stay ahead of expiring medicines with real-time alerts.
+    </div>
+    
 
     <% if (alerts.length === 0) { %>
-      <p style="text-align:center; color:gray;">No active alerts</p>
+      <p class="empty-text">No active alerts 🎉 – all medicines are safe for now.</p>
     <% } %>
 
     <% alerts.forEach(a => { %>
       <div class="alert-box">
-        ⚠ Medicine <strong><%= a.medicine %></strong> (Batch <%= a.batchNumber %>) expires in <strong><%= a.daysLeft %></strong> days.
+        <div class="alert-icon">⚠</div>
+        <div class="alert-content">
+          Medicine <strong><%= a.medicine %></strong>
+          (Batch <strong><%= a.batchNumber %></strong>)
+          expires in <strong><%= a.daysLeft %></strong> days.
+          <span class="badge-chip">Near Expiry</span>
+        </div>
       </div>
     <% }) %>
+    <a href="/api/medicines/all" class="back-link">← Back to Dashboard</a>
   </div>
+  
 
 </body>
 </html>
