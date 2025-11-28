@@ -169,6 +169,15 @@ router.post("/update-email", async (req, res) => {
   }
 });
 
+router.get("/generate-token-check", (req, res) => {
+  if (req.session && req.session.patientId) {
+    // Already logged in → token page/profile
+    return res.redirect("/profile");
+  }
+
+  // User NOT logged in → login first
+  return res.redirect("/login");
+});
 
 // logout
 router.post('/logout', (req, res) => {

@@ -15,6 +15,7 @@ app.set("io", io);
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static("public"));
 app.use(
   session({
     secret: "nishtha",

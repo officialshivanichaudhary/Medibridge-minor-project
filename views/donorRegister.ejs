@@ -2,8 +2,117 @@
 <html>
 <head>
   <title>Register as Blood Donor</title>
+
+ <style>
+    body {
+      background: url('/images/medibridge_landingpage.jpg') no-repeat center/cover fixed;
+      font-family: "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 50px;
+      display: flex;
+      justify-content: center;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(6px);
+      z-index: -1;
+    }
+
+    .donor-box {
+      width: 520px;
+      background: rgba(255,255,255,0.92);
+      padding: 40px 45px;
+      border-radius: 20px;
+      box-shadow: 0 10px 35px rgba(0,0,0,0.25);
+    }
+
+    h1 {
+      text-align: center;
+      color: #0077b6;
+      font-weight: 800;
+      margin-bottom: 25px;
+    }
+
+    h2 {
+      color: #003b55;
+      margin-top: 25px;
+      font-weight: 700;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1.5px solid rgba(0,0,0,0.25);
+      margin: 8px 0 15px;
+      font-size: 1rem;
+    }
+
+    input:focus, select:focus {
+      border-color: #0077b6;
+      outline: none;
+      box-shadow: 0 0 6px rgba(0,119,182,0.35);
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #0077b6;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.25s;
+      margin-top: 5px;
+      margin-bottom: 10px;
+    }
+    button:hover {
+      background: #005f86;
+    }
+
+    .msg-error { color: #e53935; font-weight: 700; }
+    .msg-success { color: #2e7d32; font-weight: 700; }
+
+    hr {
+      margin: 25px 0;
+      opacity: 0.35;
+    }
+
+    .back-btn {
+      display: block;
+      text-decoration: none;
+      text-align: center;
+      background: transparent;
+      border: 2px solid #0077b6;
+      color: #0077b6;
+      padding: 10px;
+      border-radius: 10px;
+      font-weight: 700;
+      transition: 0.25s;
+      margin-top: 18px;
+    }
+    .back-btn:hover {
+      background: #0077b6;
+      color: #fff;
+    }
+
+  </style>
+
+
 </head>
 <body>
+  <div class="donor-box">
   <h1>Register as Blood Donor</h1>
 
   <% if (error) { %>
@@ -50,6 +159,6 @@
     <button type="submit">Register as Donor</button>
   </form>
   <a href="/" class="btn btn-secondary mt-3">← Back to Home</a>
-
+</div>
 </body>
 </html>

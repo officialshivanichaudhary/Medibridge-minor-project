@@ -1,3 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+<style>
+body {
+    background: url('/images/medibridge_landingpage.jpg') center/cover fixed;
+    font-family: "Segoe UI", sans-serif;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+body::before {
+    content:"";
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.45);
+    backdrop-filter:blur(5px);
+    z-index:-1;
+}
+
+.edit-box {
+    width: 450px;
+    background: rgba(255,255,255,0.95);
+    padding: 35px 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.26);
+}
+
+h2 {
+    text-align: center;
+    color: #0077b6;
+    font-weight: 800;
+    margin-bottom: 25px;
+}
+
+label {
+    font-weight: 600;
+    margin: 8px 0 5px;
+    display: block;
+    color: #003b55;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1.5px solid rgba(0,0,0,0.25);
+    font-size: 1rem;
+    margin-bottom: 14px;
+}
+input:focus {
+    border-color: #0077b6;
+    outline: none;
+    box-shadow: 0 0 6px rgba(0,119,182,0.4);
+}
+
+/* OPD Checkbox Pills */
+.opd-days {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 15px 0;
+}
+.opd-pill {
+    background: #e0f5ff;
+    padding: 7px 10px;
+    border-radius: 10px;
+    color: #005a80;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.opd-pill input {
+    width: auto;
+    margin: 0;
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    background: #0077b6;
+    color: #fff;
+    font-size: 1.1rem;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    transition: 0.25s;
+    margin-top: 10px;
+}
+button:hover {
+    background: #005f86;
+}
+
+.btn-back {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 12px;
+    border-radius: 10px;
+    background: transparent;
+    border: 2px solid #0077b6;
+    color: #0077b6;
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 1rem;
+    margin-top: 12px;
+    transition: 0.25s;
+}
+.btn-back:hover {
+    background: #0077b6;
+    color: #fff;
+}
+
+
+</style>
+
+
+</head>
+<body>
+    <div class="edit-box">
 <h2>Edit Doctor</h2>
 
 <form action="/admin/edit-doctor/<%= doctor._id %>" method="POST">
@@ -14,16 +143,25 @@
     <label>Consult Time (min)</label>
     <input type="number" name="avgConsultTime" value="<%= doctor.avgConsultTime %>" required>
 
-<h3>OPD Days</h3>
+<h3 style="color:#0077b6; font-weight:800;">OPD Days</h3>
 
-<label><input type="checkbox" name="opdDays" value="Mon" <%= doctor.opdDays.includes("Mon") ? "checked" : "" %>> Mon</label>
-<label><input type="checkbox" name="opdDays" value="Tue" <%= doctor.opdDays.includes("Tue") ? "checked" : "" %>> Tue</label>
-<label><input type="checkbox" name="opdDays" value="Wed" <%= doctor.opdDays.includes("Wed") ? "checked" : "" %>> Wed</label>
-<label><input type="checkbox" name="opdDays" value="Thu" <%= doctor.opdDays.includes("Thu") ? "checked" : "" %>> Thu</label>
-<label><input type="checkbox" name="opdDays" value="Fri" <%= doctor.opdDays.includes("Fri") ? "checked" : "" %>> Fri</label>
-<label><input type="checkbox" name="opdDays" value="Sat" <%= doctor.opdDays.includes("Sat") ? "checked" : "" %>> Sat</label>
-<label><input type="checkbox" name="opdDays" value="Sun" <%= doctor.opdDays.includes("Sun") ? "checked" : "" %>> Sun</label>
+<div class="opd-days">
+<label class="opd-pill"><input type="checkbox" name="opdDays" value="Mon" <%= doctor.opdDays.includes("Mon") ? "checked" : "" %>> Mon</label>
+<label class="opd-pill"><input type="checkbox" name="opdDays" value="Tue" <%= doctor.opdDays.includes("Tue") ? "checked" : "" %>> Tue</label>
+<label class="opd-pill"><input type="checkbox" name="opdDays" value="Wed" <%= doctor.opdDays.includes("Wed") ? "checked" : "" %>> Wed</label>
+<label class="opd-pill"><input type="checkbox" name="opdDays" value="Thu" <%= doctor.opdDays.includes("Thu") ? "checked" : "" %>> Thu</label>
+<label class="opd-pill"><input type="checkbox" name="opdDays" value="Fri" <%= doctor.opdDays.includes("Fri") ? "checked" : "" %>> Fri</label>
+<label class="opd-pill"><input type="checkbox" name="opdDays" value="Sat" <%= doctor.opdDays.includes("Sat") ? "checked" : "" %>> Sat</label>
+<label class="opd-pill"><input type="checkbox" name="opdDays" value="Sun" <%= doctor.opdDays.includes("Sun") ? "checked" : "" %>> Sun</label>
+</div>
 
 
     <button type="submit">Update Doctor</button>
+    <a href="/admin/dashboard" class="btn-back">← Back to Dashboard</a>
+
 </form>
+
+
+</div>
+</body>
+</html>

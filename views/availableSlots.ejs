@@ -3,7 +3,13 @@
 <head>
   <title>Available Slots</title>
   <style>
-    body { font-family: Poppins, sans-serif; background: #fafafa; padding: 20px; }
+    body { font-family: Poppins, sans-serif; background: #fafafa; padding: 20px;  background: url('/images/medibridge_landingpage.jpg') no-repeat center/cover fixed;
+    margin: 0;
+    font-family: "Segoe UI", sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 0;}
     h2 { margin-bottom: 10px; }
     .legend span { padding: 6px 12px; border-radius: 5px; margin-right: 8px; font-size: 14px; }
     .available { background: #a8e6a3; }
@@ -22,11 +28,84 @@
     .flash-booked {
       animation: bookedFlash 1s ease;
     }
+    body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(5px);
+    z-index: -1;
+}
+
+/* White Card */
+.container-box {
+    width: 850px;
+    background: rgba(255,255,255,0.94);
+    padding: 30px 40px;
+    border-radius: 20px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.28);
+}
+
+/* Titles */
+h2, h3 {
+    color: #0077b6;
+    font-weight: 800;
+}
+
+legend, label, p {
+    color: #002c45;
+    font-weight: 600;
+}
+
+/* Slots (KEEPING COLORS SAME AS YOURS) */
+.slots { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 10px; 
+    margin-top: 10px; 
+}
+
+.slot-btn {
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+hr {
+    opacity: 0.5;
+    margin: 18px 0;
+}
+
+/* Back Button */
+a.btn {
+    display: inline-block;
+    margin-top: 18px;
+    padding: 12px 20px;
+    background: #0077b6;
+    color: #fff;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+}
+a.btn:hover {
+    background: #005f87;
+}
+
+/* Legend Styling */
+.legend span {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-block;
+    margin: 4px 8px 10px 0;
+}
   </style>
 </head>
 
 <body>
-
+<div class="container-box">
   <h2>Department: <%= departmentName %></h2>
 
   <div class="legend">
@@ -117,6 +196,6 @@
       }
     });
   </script>
-
+</div>
 </body>
 </html>

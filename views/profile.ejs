@@ -3,9 +3,145 @@
 <html>
 <head>
   <title>Patient Profile</title>
+
+<style>
+body {
+    background: url('/images/medibridge_landingpage.jpg') no-repeat center/cover fixed;
+    font-family: "Segoe UI", sans-serif;
+    margin: 0;
+    padding: 50px 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.40);
+    backdrop-filter: blur(5px);
+    z-index: -1;
+}
+
+/* Main Glass Card */
+.profile-box {
+    background: rgba(255,255,255,0.95);
+    padding: 35px 45px;
+    width: 500px;
+    border-radius: 18px;
+    box-shadow: 0px 10px 35px rgba(0,0,0,0.25);
+}
+
+h2 {
+    text-align: center;
+    color: #0077b6;
+    font-weight: 700;
+     margin-top: -20px;
+}
+ h3 {
+    text-align: center;
+    color: #0077b6;
+    font-weight: 700;
+    margin-top: 4px;
+    margin-bottom: 30px;
+}
+
+/* Form Styling */
+label {
+    font-weight: 600;
+    color: #003b55;
+    display: block;
+    margin-top: -20px;
+}
+input, select {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0 10px;
+    border-radius: 10px;
+    border: 1.4px solid rgba(0,0,0,0.22);
+    font-size: 1rem;
+}
+input:focus, select:focus {
+    border-color: #0077b6;
+    outline: none;
+    box-shadow: 0 0 8px rgba(0,119,182,0.35);
+}
+
+/* Buttons */
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 6px;
+    font-size: 1.05rem;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+}
+button[type="submit"] {
+    background: #0077b6;
+    color: white;
+}
+button[type="submit"]:hover {
+    background: #005f86;
+}
+
+.btn-secondary {
+    display: inline-block;
+    width: 480px;
+    text-align: center;
+    padding: 12px;
+    background: transparent;
+    border: 2px solid #0077b6;
+    border-radius: 10px;
+    color: #0077b6;
+    font-weight: 600;
+    text-decoration: none;
+}
+.btn-secondary:hover {
+    background: #0077b6;
+    color: white;
+}
+
+/* Success + Error Messages */
+.alert-success {
+    background: #d4ffe0;
+    color: #0f8138;
+    border: 1px solid #0f8138;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+.alert-danger {
+    background: #ffd3d3;
+    color: #a30000;
+    border: 1px solid #a30000;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+/* Logout button */
+form[action="/logout"] button {
+    background: #e63946;
+    width: 100%;
+}
+form[action="/logout"] button:hover {
+    background: #b60011;
+}
+
+hr {
+    margin: 20px 0;
+    opacity: 0.5;
+}
+</style>
+
 </head>
 <body>
- <h2>Welcome, <%= name %></h2>
+
+<div class="profile-box">
+ <h2>WELCOME, <%= name %></h2>
  <% if (typeof bloodGroupError !== 'undefined' && bloodGroupError) { %>
   <div style="color: red; font-weight: bold; margin-bottom: 10px;">
     <%= bloodGroupError %>
@@ -18,7 +154,7 @@
     </div>
 <% } %>
 
-<h3>Update Profile</h3>
+<h2>UPDATE PROFILE</h2>
 
 <form action="/update-profile" method="POST">
 
@@ -49,7 +185,7 @@
 
 
 
-  <h2>Book OPD Token (choose department)</h2>
+  <h3>Book OPD Token (choose department)</h3>
   <form action="/get-available-slots" method="GET">
     <label>Department:</label>
     <select name="department" required>
@@ -114,6 +250,6 @@ async function validateEmail() {
 }
 </script>
 
-
+</div>
 </body>
 </html>

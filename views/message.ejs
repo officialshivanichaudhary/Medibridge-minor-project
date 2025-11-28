@@ -3,7 +3,16 @@
 <head>
   <title>Message</title>
   <style>
-    body { font-family: Poppins, sans-serif; background: #f0f0f0; padding: 40px; text-align: center; }
+    body { font-family: Poppins, sans-serif; background: #f0f0f0; padding: 40px; text-align: center;
+    background: url('/images/medibridge_landingpage.jpg') no-repeat center/cover fixed;
+    font-family: "Segoe UI", sans-serif;
+    padding: 0;
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    }
     .msg-box {
       background: white;
       border-radius: 10px;
@@ -21,6 +30,45 @@
       cursor: pointer;
       margin-top: 20px;
     }
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(5px);
+    z-index: -1;
+}
+
+.msg-box {
+    background: rgba(255,255,255,0.92);
+    border-radius: 18px;
+    padding: 35px 40px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.28);
+}
+
+h3 {
+    color: #50a9e5;
+    font-weight: 800;
+    margin-bottom: 20px;
+}
+
+button {
+    background: #0077b6;
+    color: #fff;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: 0.3s;
+}
+button:hover {
+    background: #005f87;
+}
+
   </style>
 </head>
 <body>

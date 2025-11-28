@@ -1,12 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Admin Login | MediBridge</title>
+
+<style>
+body {
+    background: url('/images/medibridge_landingpage.jpg') center/cover no-repeat fixed;
+    font-family: "Segoe UI", sans-serif;
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(5px);
+    z-index: -1;
+}
+
+.admin-box {
+    background: rgba(255,255,255,0.93);
+    padding: 40px 45px;
+    border-radius: 20px;
+    width: 400px;
+    box-shadow: 0 10px 38px rgba(0,0,0,0.26);
+    text-align: center;
+}
+
+h2 {
+    font-weight: 800;
+    margin-bottom: 25px;
+    color: #0077b6;
+}
+
+input {
+    width: 100%;
+    padding: 14px;
+    margin: 12px 0;
+    border-radius: 10px;
+    border: 1.5px solid rgba(0,0,0,0.25);
+    font-size: 1rem;
+}
+input:focus {
+    border-color: #0077b6;
+    outline: none;
+    box-shadow: 0 0 6px rgba(0,119,182,0.4);
+}
+
+button {
+    width: 100%;
+    background: #0077b6;
+    color: white;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: 0.3s;
+}
+button:hover {
+    background: #005f87;
+}
+
+.error-msg {
+    color: #e63946;
+    font-size: 0.95rem;
+    margin-top: 5px;
+    font-weight: 600;
+}
+</style>
+</head>
+<body>
+
+<div class="admin-box">
+
 <h2>Admin Login</h2>
 
 <form method="POST" action="/admin/login">
+
   <input type="email" name="email" placeholder="Admin Email" required>
   <input type="password" name="password" placeholder="Password" required>
 
   <% if (typeof error !== "undefined") { %>
-    <p style="color:red;"><%= error %></p>
+    <div class="error-msg"><%= error %></div>
   <% } %>
 
   <button type="submit">Login</button>
 </form>
+
+</div>
+
+</body>
+</html>

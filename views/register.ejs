@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -70,6 +70,229 @@ async function verifyOTP() {
     window.emailVerified = true;
   }
 }
+</script>
+
+</body>
+</html>
+ -->
+
+
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediBridge | Register</title>
+
+    <style>
+        body {
+            background: url('/images/medibridge_landingpage.jpg') no-repeat center center/cover;
+            font-family: "Segoe UI", system-ui, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 0;
+            margin: 0;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.40);
+            backdrop-filter: blur(5px);
+            z-index: -1;
+        }
+
+        .register-box {
+            width: 480px;
+            background: rgba(255, 255, 255, 0.92);
+            padding: 35px 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0px 10px 32px rgba(0,0,0,0.25);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        h2 {
+            font-weight: 800;
+            margin-bottom: 25px;
+            text-align: center;
+            color: #0077b6;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 12px;
+            border-radius: 10px;
+            border: 1.5px solid rgba(0,0,0,0.25);
+            font-size: 1rem;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #0b74b1;
+            box-shadow: 0 0 6px rgba(15, 156, 245, 0.35);
+        }
+
+        .otp-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .otp-container button {
+            width: 30%;
+            padding: 12px;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 18px;
+            padding: 14px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #0077b6, #00b4db);
+            border: none;
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #005f86, #009ac3);
+        }
+
+        label {
+            font-size: 0.9rem;
+            margin-top: 15px;
+            display: block;
+            color: #003b55;
+            font-weight: 600;
+        }
+
+  .check-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+    margin: 6px 0 18px 4px; /* better spacing */
+    color: #003b55;
+}
+
+
+        p {
+            margin: 0;
+            font-size: 0.93rem;
+            margin-top: 6px;
+            font-weight: 600;
+        }
+
+        /* Scrollbar Styling */
+        .register-box::-webkit-scrollbar {
+            width: 6px;
+        }
+        .register-box::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+        }
+
+        .check-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    margin: 10px 0 20px 0;
+    font-weight: 500;
+    white-space: nowrap; /* prevents text wrap */
+}
+
+.check-label-row input {
+    width: auto;
+    margin: 0;
+}
+
+    </style>
+</head>
+<body>
+
+    <form action="/register" method="post" class="register-box">
+
+        <h2>Create Account</h2>
+
+        <input type="text" placeholder="Full Name" name="name" required>
+
+        <div class="otp-container">
+            <input type="email" placeholder="Email" name="email" id="email" required>
+            <button type="button" onclick="sendOTP()">Send OTP</button>
+        </div>
+
+        <div class="otp-container">
+            <input type="text" id="otp" placeholder="Enter OTP">
+            <button type="button" onclick="verifyOTP()">Verify</button>
+        </div>
+
+        <p id="otpMsg"></p>
+
+        <input type="number" placeholder="Phone Number" name="phone" required>
+        <input type="password" placeholder="Password" name="password" required>
+        <input type="password" placeholder="Confirm Password" name="confirm_password" required>
+        <input type="number" placeholder="Age" name="age" required>
+        <input type="text" placeholder="Gender" name="gender" required>
+
+        <label>Blood Group (optional but required for donor)</label>
+        <select name="bloodGroup">
+          <option value="">Select Blood Group</option>
+          <option value="A+">A+</option><option value="A-">A-</option>
+          <option value="B+">B+</option><option value="B-">B-</option>
+          <option value="AB+">AB+</option><option value="AB-">AB-</option>
+          <option value="O+">O+</option><option value="O-">O-</option>
+        </select>
+
+        <label class="check-label">
+            <input type="checkbox" name="registerAsDonor">
+            Register as a blood donor ❤️
+        </label>
+
+        <button type="submit">Register</button>
+
+    </form>
+
+
+<script>
+
+async function sendOTP() {
+  const email = document.getElementById("email").value;
+  const res = await fetch("/send-otp", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ email })
+  });
+  const data = await res.json();
+  alert(data.message);
+}
+
+async function verifyOTP() {
+  const email = document.getElementById("email").value;
+  const otp = document.getElementById("otp").value;
+
+  const res = await fetch("/verify-otp", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ email, otp })
+  });
+  const data = await res.json();
+
+  document.getElementById("otpMsg").innerText = data.message;
+  if (data.success) {
+    window.emailVerified = true;
+  }
+}
+
 </script>
 
 </body>

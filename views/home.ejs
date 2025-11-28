@@ -5,74 +5,320 @@
     <title>MediBridge | Hospital Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
+  
     <style>
+        :root {
+            --primary: #0f9cf5;
+            --primary-dark: #0b74b1;
+            --accent: #12cbc4;
+            --bg-soft: #f4f7fb;
+            --card-bg: #ffffff;
+            --danger: #e84118;
+            --success: #27ae60;
+            --warning: #f1c40f;
+        }
+
         body {
-            background: #f4f7fa;
+    background: url('/images/medibridge_landingpage.jpg') no-repeat center center/cover;
+    font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+        /* NAVBAR */
+  /* NAVBAR → clean medical white style */
+.navbar {
+      background: #45a5d1 !important;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+    padding: 6px 0;
+}
+
+/* Logo perfect fit */
+.nav-logo {
+    height: 42px;
+    object-fit: contain;
+    background: transparent !important;
+}
+
+
+
+
+        .navbar-brand {
+            font-weight: 800;
+            letter-spacing: 1px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .resource-card {
-            border-radius: 16px;
-            padding: 20px;
-            background: white;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            transition: 0.3s;
+.navbar-brand {
+    margin-right: 0px !important; /* Left push */
+    margin-left: -120px !important; /* Stick to edge */
+}
+
+       
+      .navbar .btn {
+    border-radius: 6px !important;
+    font-weight: 600;
+ padding: 4px 14px;  /* Smaller buttons */
+    font-size: 0.9rem; 
+}
+
+.btn-light, .btn-outline-light, .generate {
+    border: 2px solid #bcd4df !important;
+    color: #e7eaeb !important;
+    background: transparent !important;
+}
+  
+.btn-danger, .btn-success {
+    color: #fff !important;
+    border: none;
+}
+
+        .navbar .btn-danger {
+            background: linear-gradient(135deg, #e63946, #ff7675);
+            border: none;
         }
-        .resource-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+
+        /* MAIN CONTAINER */
+        .container.my-5 {
+            max-width: 1120px;
         }
+
+        /* PAGE TITLE / HERO EFFECT */
         .title-text {
-            font-weight: 700;
+            font-weight: 800;
             letter-spacing: 0.5px;
+            color: hsl(220, 12%, 95%);
+            position: relative;
+            display: inline-block;
         }
+
+        .title-text::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: -6px;
+            width: 55%;
+            height: 4px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, var(--accent), var(--primary));
+        }
+
+/* Hover effect */
+.navbar .btn:hover:not(.btn-danger):not(.btn-success) {
+    background: #0077b6 !important;
+    color: #fff !important;
+}
+        /* RESOURCE CARDS */
+        .resource-card {
+            border-radius: 20px;
+            padding: 22px 22px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 25px rgba(15, 76, 117, 0.15);
+            backdrop-filter: blur(10px);
+            transition: all 0.25s ease-in-out;
+            border: 1px solid rgba(15, 156, 245, 0.06);
+        }
+
+        .resource-card:hover {
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: 0 16px 32px rgba(15, 76, 117, 0.23);
+        }
+
+        .section-title {
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title::before {
+            content: "";
+            width: 8px;
+            height: 24px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, var(--accent), var(--primary));
+        }
+
         .badge-custom {
             font-size: 0.9rem;
             padding: 6px 12px;
+            border-radius: 999px;
         }
-        .section-title {
-            font-weight: 600;
+
+        .badge.bg-secondary {
+            background: rgba(15, 156, 245, 0.12) !important;
+            color: var(--primary-dark);
+        }
+
+        .badge.bg-danger {
+            background: rgba(231, 76, 60, 0.12) !important;
+            color: var(--danger);
+        }
+
+        .badge.bg-success {
+            background: rgba(46, 204, 113, 0.12) !important;
+            color: var(--success);
+        }
+
+        /* BLOOD BOXES */
+        .blood-box {
+            border-radius: 18px;
+            padding: 18px;
+            background: rgba(255, 255, 255, 0.96);
+            margin-bottom: 15px;
+            box-shadow: 0 8px 22px rgba(192, 57, 43, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+        body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.25); /* dark overlay */
+    backdrop-filter: blur(1.5px);
+    z-index: -1;
+}
+
+
+        .blood-box::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.3), transparent 55%);
+            pointer-events: none;
+        }
+
+        .blood-box.text-center {
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .blood-box.text-center:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 14px 32px rgba(192, 57, 43, 0.4);
+        }
+
+        .blood-box h5 {
             margin-bottom: 8px;
         }
-        .blood-box {
-            border-radius: 12px;
-            padding: 15px;
-            background: white;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+
+        .blood-box .badge-custom {
+            border-radius: 999px;
         }
+
+        /* BLOOD ALERT BADGES COLOR TWEAK */
+        .blood-box .badge.bg-light.text-danger {
+            border: 1px solid rgba(231, 76, 60, 0.6);
+        }
+
+        .blood-box .badge.bg-dark.text-warning {
+            background: #2d3436 !important;
+        }
+
+        .blood-box .badge.bg-light.text-success {
+            border: 1px solid rgba(39, 174, 96, 0.6);
+        }
+
+        /* FOOTER */
+        footer {
+            margin-top: 40px;
+            text-align: center;
+           color: #ffffff !important; /* WHITE TEXT */
+    padding: 20px 0;
+        }
+
+     footer strong {
+    color: #ffffff !important; /* White bold text */
+}
+
+footer hr {
+    opacity: 0.3;
+    border-color: rgba(255,255,255,0.4);
+}
+.footer-bottom {
+    background: #45a5d1;
+    padding: 14px 0;  /* Increased height */
+    font-size: 1rem;
+    letter-spacing: 0.6px;
+    color: #ffffff !important;
+    text-align: center;
+    backdrop-filter: blur(5px);
+    margin-top: 10px;
+}
+
+        /* SMALL SCREEN TWEAKS */
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+            .resource-card {
+                padding: 18px;
+            }
+            .blood-box {
+                padding: 16px;
+            }
+        }
+
+.navbar-brand img {
+    width: 140px;
+    height: auto;
+    object-fit: contain;
+    background: transparent;
+    border-radius: 0;
+    filter: drop-shadow(0px 0px 2px rgba(0,0,0,0.2));
+}
+
+/* .nav-logo {
+    height: 22px;
+    width: auto;
+    object-fit: contain;
+    background: transparent;
+} */
+
     </style>
 </head>
 
 <body>
 
-<nav class="navbar navbar-dark bg-primary">
+<nav class="navbar navbar-expand-lg navbar-dark">
   <div class="container">
-    <span class="navbar-brand title-text">MediBridge</span>
 
-    <% if (!patientId) { %>
-      <!-- Not logged in -->
-      <a href="/login" class="btn btn-light me-2">Login</a>
-      <a href="/register" class="btn btn-outline-light me-2">Register</a>
+    <!-- LOGO ONLY ON LEFT -->
+     <!-- <img  class="logo" src="/images/Gemini_Generated_Image_ycxdf8ycxdf8ycxd.png" alt="" > -->
+    <!-- <a class="navbar-brand d-flex align-items-center" href="/">
+  <img src="/images/Gemini_Generated_Image_ycxdf8ycxdf8ycxd.png" alt="MediBridge Logo" class="nav-logo">
+</a> -->
 
-      <!-- FIX: send user to login instead of POST route -->
-      <a href="/login" class="btn btn-danger">Become a Donor</a>
-      
-    <% } else { %>
-      <!-- Logged-in user -->
-      <a href="/profile" class="btn btn-outline-light me-2">Profile</a>
+    
+     <a class="navbar-brand" href="/">MediBridge</a>
 
-      <% if (!isDonor) { %>
-        <!-- Existing patient but not donor -->
-        <a href="/donor/become" class="btn btn-danger me-2">Become a Donor</a>
+    <!-- RIGHT SIDE BUTTONS -->
+    <div class="ms-auto d-flex align-items-center">
+      <% if (!patientId) { %>
+
+        <a href="/generate-token-check" class="btn btn-light mx-1">Generate Token</a>
+        <a href="/login" class="btn btn-light mx-1">Login</a>
+        <a href="/register" class="btn btn-outline-light mx-1">Register</a>
+        <a href="/login" class="btn btn-danger mx-1">Become a Donor</a>
+
       <% } else { %>
-        <!-- Already donor -->
-        <a href="/donor/donate" class="btn btn-success me-2">Already a Donor</a>
+
+        <a href="/profile" class="btn btn-outline-light mx-1">Profile</a>
+
+        <% if (!isDonor) { %>
+          <a href="/donor/become" class="btn btn-danger mx-1">Become a Donor</a>
+        <% } else { %>
+          <a href="/donor/donate" class="btn btn-success mx-1">Donate Blood</a>
+        <% } %>
+
+        <form action="/logout" method="POST" class="d-inline mx-1">
+          <button class="btn btn-light">Logout</button>
+        </form>
+
       <% } %>
+    </div>
 
-      <form action="/logout" method="POST" class="d-inline">
-        <button class="btn btn-light">Logout</button>
-      </form>
-
-    <% } %>
   </div>
 </nav>
 
@@ -250,13 +496,18 @@
 
 
     <!-- FOOTER -->
-    <footer class="mt-5 text-center text-secondary">
+    <footer class="mt-5 text-center">
         <hr>
         <p>Last Updated By: <strong><%= resources.lastUpdatedBy || "Admin" %></strong></p>
         <p>Last Updated On: <%= resources.updatedAt.toLocaleString() %></p>
     </footer>
 
 </div>
+
+<div class="footer-bottom">
+    <p>© 2025 MediBridge | Connecting Hospitals With Lifesaving Resources 🏥</p>
+</div>
+
 
 </body>
 </html>
