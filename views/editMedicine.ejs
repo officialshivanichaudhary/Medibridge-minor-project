@@ -1,22 +1,108 @@
 <%- include('partials/header') %>
 
-<h3>Edit Medicine</h3>
-<form action="/api/medicines/update/<%= medicine._id %>" method="POST">
-  <div class="mb-2">
+<style>
+  body {
+    font-family: "Poppins", sans-serif;
+    margin: 0;
+    background: url("/images/login-bg.jpg") center/cover no-repeat fixed;
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 16px;
+    min-height: 100vh;
+  }
+
+  .edit-box {
+    width: 100%;
+    max-width: 650px;
+    background: rgba(255, 255, 255, 0.96);
+    padding: 38px 34px;
+    border-radius: 18px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+    margin-top: 10px;
+    margin-left: 200px;
+  }
+
+  .edit-box h3 {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 6px;
+  }
+
+  .subtitle {
+    text-align: center;
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 25px;
+  }
+
+  label {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-bottom: 16px;
+    font-size: 15px;
+  }
+
+  button.btn-primary {
+    width: 100%;
+    background: #006eff;
+    color: #fff;
+    border: none;
+    padding: 11px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.25s;
+  }
+
+  button.btn-primary:hover {
+    background: #004bb3;
+  }
+
+  .back-btn {
+    margin-top: 18px;
+    text-align: center;
+    display: block;
+    text-decoration: none;
+    color: #006eff;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .back-btn:hover {
+    text-decoration: underline;
+  }
+</style>
+
+<div class="edit-box">
+  <h3>Edit Medicine</h3>
+  <div class="subtitle">Update medicine details and expiry information.</div>
+
+  <form action="/api/medicines/update/<%= medicine._id %>" method="POST">
     <label>Medicine Name</label>
-    <input type="text" name="name" class="form-control" value="<%= medicine.name %>">
-  </div>
-  <div class="mb-2">
+    <input type="text" name="name" class="form-control" value="<%= medicine.name %>" required>
+
     <label>Quantity</label>
-    <input type="number" name="quantity" class="form-control" value="<%= medicine.quantity %>">
-  </div>
-  <div class="mb-2">
+    <input type="number" name="quantity" class="form-control" value="<%= medicine.quantity %>" required>
+
     <label>Expiry Date</label>
-    <input type="date" name="expiryDate" class="form-control" value="<%= medicine.expiryDate.toISOString().slice(0,10) %>">
-  </div>
-  <button class="btn btn-primary mt-2">Update Medicine</button>
-</form>
- <br>
-    <a href="/api/medicines/all">⬅ Back to Dashboard</a>
-  </div>
-<%- include('partials/footer') %>
+    <input type="date" name="expiryDate" class="form-control"
+           value="<%= medicine.expiryDate.toISOString().slice(0,10) %>" required>
+
+    <button class="btn btn-primary">Update Medicine</button>
+  </form>
+
+  <a href="/api/medicines/all" class="back-btn">⬅ Back to Dashboard</a>
+</div>
+
