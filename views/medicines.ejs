@@ -32,7 +32,7 @@
 
   /* --- HEADER --- */
   header {
-    background-color: #006eff;
+    background-color: #09bac7;
     color: white;
     display: flex;
     justify-content: space-between;
@@ -52,7 +52,7 @@
 
   header button {
     background: white;
-    color: #006eff;
+    color: #09bac7;
     border: none;
     padding: 8px 15px;
     border-radius: 6px;
@@ -62,7 +62,7 @@
   }
 
   header button:hover {
-    background: #004bb3;
+    background: #09bac7;
     color: white;
   }
 
@@ -101,10 +101,10 @@
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
   }
 
-  .bg-primary { background: #007bff; }
-  .bg-success { background: #28a745; }
-  .bg-warning { background: #ffc107; color: #222; }
-  .bg-danger  { background: #dc3545; }
+  .bg-primary { background: #09bac7; }
+  .bg-success { background: #55aa05; }
+  .bg-warning { background: #f0b810; color: #222; }
+  .bg-danger  { background: #960202; }
 
   /* --- TABLE STYLING --- */
   table {
@@ -123,7 +123,7 @@
   }
 
   th {
-    background: #007bff;
+    background: #09bac7;
     color: white;
   }
 
@@ -148,21 +148,21 @@
   .btn-warning:hover { background: #e0a800; }
 
   .btn-danger {
-    background: #dc3545;
+    background: #960202;
     color: white;
   }
-  .btn-danger:hover { background: #b02a37; }
+  .btn-danger:hover { background: #960202; }
 
   .status {
     font-weight: bold;
   }
   .status.active  { color: #28a745; }
   .status.near    { color: #ff9800; }
-  .status.expired { color: #dc3545; }
+  .status.expired { color: #960202; }
 
   /* --- FOOTER --- */
   footer {
-    background: #006eff;
+    background: #09bac7;
     color: white;
     text-align: center;
     padding: 15px;
@@ -212,7 +212,7 @@
     const toast = document.getElementById("toast");
     const msg = document.getElementById("toastMessage");
 
-    msg.innerText = `⚠️ Medicine "${latest.medicine}" (Batch: ${latest.batchNumber}) expires in ${latest.daysLeft} days!`;
+    msg.innerText = ⚠ Medicine "${latest.medicine}" (Batch: ${latest.batchNumber}) expires in ${latest.daysLeft} days!;
 
     toast.classList.add("show");
 
@@ -231,7 +231,7 @@
 
   <div class="nav-actions">
     <!-- 🔔 Notification Bell -->
-    <a href="/api/medicines/notifications" class="notification-bell" title="Expiry Alerts">
+    <a href="/pharmacy/notifications" class="notification-bell" title="Expiry Alerts">
   <span>🔔</span>
   <% if (alerts && alerts.length > 0) { %>
     <span class="badge"><%= alerts.length %></span>
@@ -239,9 +239,9 @@
 </a>
 
     <!-- Existing buttons -->
-    <button onclick="window.location.href='/api/medicines/add'">+ Add Medicine</button>
-    <button onclick="window.location.href='/api/medicines/history'">📜 View History</button>
-    <button onclick="window.location.href='/logout'">Logout</button>
+    <button onclick="window.location.href='/pharmacy/add'">+ Add Medicine</button>
+    <button onclick="window.location.href='/pharmacy/history'">📜 View History</button>
+    <button onclick="window.location.href='/pharmacy/logout'">Logout</button>
 
   </div>
 </header>
@@ -301,8 +301,8 @@
               <% } %>
             </td>
             <td>
-              <a href="/api/medicines/edit/<%= med._id %>" class="btn btn-warning">Edit</a>
-              <form action="/api/medicines/delete/<%= med._id %>" method="POST" style="display:inline;">
+              <a href="/pharmacy/edit/<%= med._id %>" class="btn btn-warning">Edit</a>
+              <form action="/pharmacy/delete/<%= med._id %>" method="POST" style="display:inline;">
                 <button type="submit" class="btn btn-danger">Delete</button>
               </form>
             </td>
@@ -312,9 +312,5 @@
     </table>
   </div>
 
-  <!-- ✅ FOOTER -->
-  <footer>
-    © 2025 MediBridge Pharmacy | All rights reserved.
-  </footer>
 </body>
 </html>

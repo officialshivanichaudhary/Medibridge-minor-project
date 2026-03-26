@@ -29,7 +29,7 @@ router.get("/add", (req, res) => {
 router.post("/add", async (req, res) => {
   try {
     await Medicine.create(req.body);
-    res.redirect("/api/medicines/all"); // ✅ Redirect to dashboard after adding
+    res.redirect("/pharmacy/all"); // ✅ Redirect to dashboard after adding
   } catch (error) {
     console.error("Error adding medicine:", error);
     res.status(500).send("Failed to add medicine.");
@@ -57,7 +57,7 @@ router.post("/update/:id", async (req, res) => {
       batchNumber,
       expiryDate,
     });
-    res.redirect("/api/medicines/all");
+    res.redirect("/pharmacy/all");
   } catch (error) {
     console.error("Error updating medicine:", error);
     res.status(500).send("Error updating medicine.");
@@ -91,7 +91,7 @@ router.post("/delete/:id", async (req, res) => {
     await Medicine.findByIdAndDelete(req.params.id);
 
     // 3️⃣ Dashboard par wapas
-    res.redirect("/api/medicines/all");
+    res.redirect("/pharmacy/all");
   } catch (error) {
     console.error("Error deleting medicine:", error);
     res.status(500).send("Error deleting medicine");

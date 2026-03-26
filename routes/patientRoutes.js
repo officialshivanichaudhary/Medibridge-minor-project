@@ -11,25 +11,58 @@ const transporter = require("../config_old/nodemailer");
 const otpStore = {};   // email → { otp, expires }
 
 // homepage
+// router.get("/", async (req, res) => {
+//     const Resource = require("../databases/HospitalResource");
+//     const resources = await Resource.findOne();
+//    // if loginPatient already set isDonor, reuse it
+//   const isDonor = req.session.isDonor || false;
+//     res.render("home", {
+//         resources,
+//         patientId: req.session.patientId || null,
+//          isDonor
+//     });
+// });
+
+// homepage
 router.get("/", async (req, res) => {
-    const Resource = require("../databases/HospitalResource");
-    const resources = await Resource.findOne();
-   // if loginPatient already set isDonor, reuse it
+  const Resource = require("../databases/HospitalResource");
+  
+  let resources = await Resource.findOne();
+
+  // If no resource exists, create one default record
+  if (!resources) {
+    resources = await Resource.create({});
+  }
+
   const isDonor = req.session.isDonor || false;
-    res.render("home", {
-        resources,
-        patientId: req.session.patientId || null,
-         isDonor
-    });
+
+  res.render("home", {
+    resources,
+    patientId: req.session.patientId || null,
+    isDonor
+  });
 });
 
+
 // register
-router.get('/register', (req, res) => res.render('register'));
+router.get('/register', (req, res) => res.render('register', { error: null }));
+
 router.post('/register', registerPatient);
 
 // login
-router.get('/login', (req, res) => res.render('login'));
-router.post('/login', loginPatient);
+router.get('/login', (req, res) => {
+  res.render('login', { error: null });
+});
+
+router.post('/login', async (req, res) => {
+  try {
+    await loginPatient(req, res);
+  } catch (err) {
+    console.log(err);
+    res.render("login", { error: "Invalid Email or Password" });
+  }
+});
+
 
 // profile — always pass session data to the view
 router.get("/profile", async (req, res) => {

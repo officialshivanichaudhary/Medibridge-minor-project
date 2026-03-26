@@ -1,15 +1,17 @@
+const dotenv = require("dotenv");
+dotenv.config(); 
+  
+
 const express = require("express");
 const session = require("express-session");
 const mongoose = require("mongoose");
-const dotenv = require("dotenv");
 const path = require("path");
 const cors = require("cors");
 const connectDB = require("./config/db");
+connectDB();
 const medicineRoutes = require("./routes/medicineRoutes");
 require("./utils/expiryCron");
 
-dotenv.config();
-connectDB();
 
 const app = express();
 app.use(cors());
@@ -45,7 +47,7 @@ function requireLogin(req, res, next) {
 const ADMIN_EMAIL = "pharmacy@gmail.com";
 const ADMIN_PASSWORD = "123456";
 
-// 🧑‍⚕️ GET: Login page
+// 🧑‍⚕ GET: Login page
 app.get("/login", (req, res) => {
   if (req.session && req.session.user) {
     return res.redirect("/");
@@ -53,7 +55,7 @@ app.get("/login", (req, res) => {
   res.render("login", { error: null });
 });
 
-// 🧑‍⚕️ POST: Login submit
+// 🧑‍⚕ POST: Login submit
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
 
@@ -94,4 +96,4 @@ app.get("/logout", (req, res) => {
 
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(🚀 Server running on port ${PORT}));

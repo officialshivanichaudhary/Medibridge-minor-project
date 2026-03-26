@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MediBridge Pharmacy Login</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      height: 100vh;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: url("/images/login-bg.jpg") no-repeat center center/cover;
+      position: relative;
+    }
+
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(4px);
+    }
+
+    .card {
+      background: rgba(216, 221, 226, 0.795);
+      padding: 35px 40px;
+      border-radius: 18px;
+      backdrop-filter: blur(37px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+      width: 380px;
+      transition: transform .3s;
+      animation: fadeIn .6s ease;
+    }
+    .card:hover { transform: scale(1.01); }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #195daa;
+      font-weight: 700;
+    }
+
+    label { font-size: 14px; font-weight: 600; color: #131111; }
+
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      margin: 6px 0 18px 0;
+      border-radius: 8px;
+      border: none;
+      background: rgba(255,255,255,0.75);
+    }
+    input:focus { background: white; }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #09bac7;
+      border: none;
+      color: white;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover { transform: translateY(-2px); }
+
+    .error {
+      color: #ff4a4a;
+      font-size: 13px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .hint {
+      font-size: 13px;
+      margin-top: 10px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="overlay"></div>
+
+  <div class="card">
+    <h2>MediBridge Pharmacy Login</h2>
+
+    <% if (error) { %>
+      <div class="error"><%= error %></div>
+    <% } %>
+
+    <form method="POST" action="/pharmacy/login">
+      <label>Email</label>
+      <input type="email" name="email" required placeholder="pharmacy@gmail.com">
+
+      <label>Password</label>
+      <input type="password" name="password" required>
+
+      <button type="submit">Login</button>
+    </form>
+
+    <div class="hint">
+      Don’t have an account? Contact admin.
+    </div>
+  </div>
+</body>
+</html>

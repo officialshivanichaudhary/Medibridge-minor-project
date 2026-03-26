@@ -301,6 +301,10 @@ footer hr {
         <a href="/login" class="btn btn-light mx-1">Login</a>
         <a href="/register" class="btn btn-outline-light mx-1">Register</a>
         <a href="/login" class="btn btn-danger mx-1">Become a Donor</a>
+        <a href="/pharmacy/login" class="btn btn-primary" style="margin-left:10px;">
+  Pharmacy Panel
+</a>
+
 
       <% } else { %>
 
@@ -337,13 +341,13 @@ footer hr {
             <div class="resource-card">
                 <h5 class="section-title">ICU Beds</h5>
                 <span class="badge bg-secondary badge-custom">
-                    Total: <%= resources.beds.icu.total %>
+                    Total: <%= resources.beds.icu.total || 0 %>
                 </span><br><br>
                 <span class="badge bg-danger badge-custom">
-                    Occupied: <%= resources.beds.icu.occupied %>
+                    Occupied: <%= resources.beds.icu.occupied || 0  %>
                 </span><br><br>
                 <span class="badge bg-success badge-custom">
-                    Available: <%= resources.beds.icu.total - resources.beds.icu.occupied %>
+                    Available: <%= resources.beds.icu.total - resources.beds.icu.occupied || 0 %>
                 </span>
             </div>
         </div>
@@ -353,13 +357,13 @@ footer hr {
             <div class="resource-card">
                 <h5 class="section-title">General Beds</h5>
                 <span class="badge bg-secondary badge-custom">
-                    Total: <%= resources.beds.general.total %>
+                    Total: <%= resources.beds.general.total || 0  %>
                 </span><br><br>
                 <span class="badge bg-danger badge-custom">
-                    Occupied: <%= resources.beds.general.occupied %>
+                    Occupied: <%= resources.beds.general.occupied  || 0 %>
                 </span><br><br>
                 <span class="badge bg-success badge-custom">
-                    Available: <%= resources.beds.general.total - resources.beds.general.occupied %>
+                    Available: <%= resources.beds.general.total - resources.beds.general.occupied || 0  %>
                 </span>
             </div>
         </div>
@@ -369,13 +373,13 @@ footer hr {
             <div class="resource-card">
                 <h5 class="section-title">HDU Beds</h5>
                 <span class="badge bg-secondary badge-custom">
-                    Total: <%= resources.beds.hdu.total %>
+                    Total: <%= resources.beds.hdu.total || 0  %>
                 </span><br><br>
                 <span class="badge bg-danger badge-custom">
-                    Occupied: <%= resources.beds.hdu.occupied %>
+                    Occupied: <%= resources.beds.hdu.occupied || 0  %>
                 </span><br><br>
                 <span class="badge bg-success badge-custom">
-                    Available: <%= resources.beds.hdu.total - resources.beds.hdu.occupied %>
+                    Available: <%= resources.beds.hdu.total - resources.beds.hdu.occupied || 0  %>
                 </span>
             </div>
         </div>
@@ -385,13 +389,13 @@ footer hr {
             <div class="resource-card">
                 <h5 class="section-title">Private Rooms</h5>
                 <span class="badge bg-secondary badge-custom">
-                    Total: <%= resources.beds.privateRoom.total %>
+                    Total: <%= resources.beds.privateRoom.total || 0  %>
                 </span><br><br>
                 <span class="badge bg-danger badge-custom">
-                    Occupied: <%= resources.beds.privateRoom.occupied %>
+                    Occupied: <%= resources.beds.privateRoom.occupied || 0  %>
                 </span><br><br>
                 <span class="badge bg-success badge-custom">
-                    Available: <%= resources.beds.privateRoom.total - resources.beds.privateRoom.occupied %>
+                    Available: <%= resources.beds.privateRoom.total - resources.beds.privateRoom.occupied || 0  %>
                 </span>
             </div>
         </div>
@@ -401,13 +405,13 @@ footer hr {
             <div class="resource-card">
                 <h5 class="section-title">Emergency Beds</h5>
                 <span class="badge bg-secondary badge-custom">
-                    Total: <%= resources.beds.emergency.total %>
+                    Total: <%= resources.beds.emergency.total || 0  %>
                 </span><br><br>
                 <span class="badge bg-danger badge-custom">
-                    Occupied: <%= resources.beds.emergency.occupied %>
+                    Occupied: <%= resources.beds.emergency.occupied  || 0  %>
                 </span><br><br>
                 <span class="badge bg-success badge-custom">
-                    Available: <%= resources.beds.emergency.total - resources.beds.emergency.occupied %>
+                    Available: <%= resources.beds.emergency.total - resources.beds.emergency.occupied || 0 %>
                 </span>
             </div>
         </div>
@@ -417,13 +421,13 @@ footer hr {
             <div class="resource-card">
                 <h5 class="section-title">Oxygen Cylinders</h5>
                 <span class="badge bg-secondary badge-custom">
-                    Total: <%= resources.oxygenCylinders.total %>
+                    Total: <%= resources.oxygenCylinders.total || 0 %>
                 </span><br><br>
                 <span class="badge bg-danger badge-custom">
-                    Used: <%= resources.oxygenCylinders.used %>
+                    Used: <%= resources.oxygenCylinders.used || 0  %>
                 </span><br><br>
                 <span class="badge bg-success badge-custom">
-                    Available: <%= resources.oxygenCylinders.total - resources.oxygenCylinders.used %>
+                    Available: <%= resources.oxygenCylinders.total - resources.oxygenCylinders.used || 0  %>
                 </span>
             </div>
         </div>
@@ -433,13 +437,13 @@ footer hr {
             <div class="resource-card">
                 <h5 class="section-title">Ventilators</h5>
                 <span class="badge bg-secondary badge-custom">
-                    Total: <%= resources.ventilators.total %>
+                    Total: <%= resources.ventilators.total || 0  %>
                 </span><br><br>
                 <span class="badge bg-danger badge-custom">
-                    Used: <%= resources.ventilators.used %>
+                    Used: <%= resources.ventilators.used || 0 %>
                 </span><br><br>
                 <span class="badge bg-success badge-custom">
-                    Available: <%= resources.ventilators.total - resources.ventilators.used %>
+                    Available: <%= resources.ventilators.total - resources.ventilators.used || 0  %>
                 </span>
             </div>
         </div>

@@ -46,7 +46,7 @@
 
   .add-page-back {
     font-size: 13px;
-    color: #006eff;
+    color: #09bac7;
     text-decoration: none;
     font-weight: 500;
   }
@@ -92,7 +92,7 @@
   }
 
   .btn-primary {
-    background-color: #006eff;
+    background-color: #09bac7;
     border-color: #006eff;
     border-radius: 999px;
     padding-inline: 28px;
@@ -136,11 +136,11 @@
         Keep your pharmacy stock updated with correct batch and expiry details.
       </p>
     </div>
-    <a href="/api/medicines/all" class="add-page-back">← Back to Dashboard</a>
+    <a href="/pharmacy/all" class="add-page-back">← Back to Dashboard</a>
   </div>
 
-  <!-- ⚠️ ROUTE, METHOD & FIELD NAMES SAME HI RAKHE GAYE HAIN -->
-  <form action="/api/medicines/add" method="POST">
+  <!-- ⚠ ROUTE, METHOD & FIELD NAMES SAME HI RAKHE GAYE HAIN -->
+  <form action="/pharmacy/add" method="POST">
     <div class="med-form-grid">
 
       <div class="med-form-group">
@@ -177,7 +177,7 @@
     <div class="add-page-actions">
       <button type="button"
               class="btn btn-outline"
-              onclick="window.location.href='/api/medicines/all'">
+              onclick="window.location.href='/pharmacy/all'">
         Cancel
       </button>
       <button class="btn btn-primary" type="submit">
@@ -186,4 +186,3 @@
     </div>
   </form>
 </div>
-

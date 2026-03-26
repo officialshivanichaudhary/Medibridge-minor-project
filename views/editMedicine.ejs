@@ -55,7 +55,7 @@
 
   button.btn-primary {
     width: 100%;
-    background: #006eff;
+    background: #09bac7;
     color: #fff;
     border: none;
     padding: 11px;
@@ -75,7 +75,7 @@
     text-align: center;
     display: block;
     text-decoration: none;
-    color: #006eff;
+    color: #09bac7;
     font-size: 14px;
     font-weight: 500;
   }
@@ -89,7 +89,7 @@
   <h3>Edit Medicine</h3>
   <div class="subtitle">Update medicine details and expiry information.</div>
 
-  <form action="/api/medicines/update/<%= medicine._id %>" method="POST">
+  <form action="/pharmacy/update/<%= medicine._id %>" method="POST">
     <label>Medicine Name</label>
     <input type="text" name="name" class="form-control" value="<%= medicine.name %>" required>
 
@@ -105,4 +105,3 @@
 
   <a href="/api/medicines/all" class="back-btn">⬅ Back to Dashboard</a>
 </div>
-

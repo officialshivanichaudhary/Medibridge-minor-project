@@ -2,49 +2,98 @@ const express = require("express");
 const app = express();
 const session = require("express-session");
 const http = require("http");
-const { Server } = require("socket.io"); // ✅ Added import
-require('dotenv').config();
+const { Server } = require("socket.io");
+require("dotenv").config();
+const path = require("path");
+const cors = require("cors");
 
-// ✅ Create an HTTP server for both Express + Socket.IO
+// DB connect
+const connectDB = require("./config/db");
+connectDB();
+
+// HTTP + Socket.IO server
 const server = http.createServer(app);
 const io = new Server(server);
-
-// ✅ Make io available inside controllers
 app.set("io", io);
 
 // Middleware
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
+
 app.use(
   session({
     secret: "nishtha",
     resave: false,
     saveUninitialized: false,
     cookie: {
-      maxAge: 24 * 60 * 60 * 1000, // session valid for 1 day
+      maxAge: 24 * 60 * 60 * 1000,
     },
   })
 );
 
 app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 
-// Routes
+// ----------------------------
+// Original MediBridge Routes
+// ----------------------------
 const patientRoutes = require("./routes/patientRoutes");
-const adminRoutes = require('./routes/adminRoutes');
-const donorRoutes=require('./routes/donorRoutes');
+const adminRoutes = require("./routes/adminRoutes");
+const donorRoutes = require("./routes/donorRoutes");
 
-// Use routes
 app.use("/", patientRoutes);
-app.use('/admin', adminRoutes);
-app.use('/donor',donorRoutes);
+app.use("/admin", adminRoutes);
+app.use("/donor", donorRoutes);
 
-// ✅ socket listener (optional log)
-io.on('connection', socket => {
-  console.log("🟢 New client connected");
-  socket.on('disconnect', () => console.log("🔴 Client disconnected"));
+// ----------------------------
+// Pharmacy Panel Integration
+// ----------------------------
+const medicineRoutes = require("./routes/medicineRoutes");
+require("./utils/expiryCron");
+
+function requirePharmacyLogin(req, res, next) {
+  if (req.session && req.session.pharmacyUser) return next();
+  return res.redirect("/pharmacy/login");
+}
+
+// Pharmacy Login Page
+app.get("/pharmacy/login", (req, res) => {
+  if (req.session && req.session.pharmacyUser) return res.redirect("/pharmacy/all");
+  res.render("pharmacyLogin", { error: null });
 });
 
-// ✅ Start the server (must use `server.listen` for Socket.IO)
+// Login Submit
+const ADMIN_EMAIL = "pharmacy@gmail.com";
+const ADMIN_PASSWORD = "123456";
+
+app.post("/pharmacy/login", (req, res) => {
+  const { email, password } = req.body;
+  if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+    req.session.pharmacyUser = email;
+    return res.redirect("/pharmacy/all");
+  }
+  res.render("pharmacyLogin", { error: "Invalid email or password" });
+});
+
+// Logout
+app.get("/pharmacy/logout", (req, res) => {
+  req.session.destroy(() => res.redirect("/pharmacy/login"));
+});
+
+// Pharmacy Routes (Dashboard + CRUD)
+app.use("/pharmacy", requirePharmacyLogin, medicineRoutes);
+// ----------------------------
+
+// Socket IO
+io.on("connection", socket => {
+  console.log("🟢 New client connected");
+  socket.on("disconnect", () => console.log("🔴 Client disconnected"));
+});
+
+// Start server
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () =>
+  console.log(`🚀 Server running & Pharmacy integrated successfully on Port ${PORT}`)
+);

@@ -137,8 +137,7 @@ a:hover {
 <div class="section-card">
 <h2>Hospital Resources</h2>
 
-<form action="/admin/update-resources" method="POST" class="resources-grid">
-
+<form action="/admin/update-hospital-resources" method="POST" class="resources-grid">
     <!-- ICU -->
     <div class="resource-box">
         <h4>ICU Beds</h4>
@@ -146,8 +145,6 @@ a:hover {
         <input type="number" name="icu_total" value="<%= resources.beds.icu.total %>" />
         <label>Occupied</label>
         <input type="number" name="icu_occupied" value="<%= resources.beds.icu.occupied %>" />
-        <label>Available</label>
-        <input type="number" value="<%= resources.beds.icu.total - resources.beds.icu.occupied %>" readonly />
     </div>
 
     <!-- General -->
@@ -157,8 +154,6 @@ a:hover {
         <input type="number" name="general_total" value="<%= resources.beds.general.total %>" />
         <label>Occupied</label>
         <input type="number" name="general_occupied" value="<%= resources.beds.general.occupied %>" />
-        <label>Available</label>
-        <input type="number" value="<%= resources.beds.general.total - resources.beds.general.occupied %>" readonly />
     </div>
 
     <!-- HDU -->
@@ -168,8 +163,6 @@ a:hover {
         <input type="number" name="hdu_total" value="<%= resources.beds.hdu.total %>" />
         <label>Occupied</label>
         <input type="number" name="hdu_occupied" value="<%= resources.beds.hdu.occupied %>" />
-        <label>Available</label>
-        <input type="number" value="<%= resources.beds.hdu.total - resources.beds.hdu.occupied %>" readonly />
     </div>
 
     <!-- Private Room -->
@@ -179,8 +172,6 @@ a:hover {
         <input type="number" name="private_total" value="<%= resources.beds.privateRoom.total %>" />
         <label>Occupied</label>
         <input type="number" name="private_occupied" value="<%= resources.beds.privateRoom.occupied %>" />
-        <label>Available</label>
-        <input type="number" value="<%= resources.beds.privateRoom.total - resources.beds.privateRoom.occupied %>" readonly />
     </div>
 
     <!-- Emergency -->
@@ -190,8 +181,6 @@ a:hover {
         <input type="number" name="emergency_total" value="<%= resources.beds.emergency.total %>" />
         <label>Occupied</label>
         <input type="number" name="emergency_occupied" value="<%= resources.beds.emergency.occupied %>" />
-        <label>Available</label>
-        <input type="number" value="<%= resources.beds.emergency.total - resources.beds.emergency.occupied %>" readonly />
     </div>
 
     <!-- Oxygen -->
@@ -201,8 +190,6 @@ a:hover {
         <input type="number" name="oxygen_total" value="<%= resources.oxygenCylinders.total %>" />
         <label>Used</label>
         <input type="number" name="oxygen_used" value="<%= resources.oxygenCylinders.used %>" />
-        <label>Available</label>
-        <input type="number" value="<%= resources.oxygenCylinders.total - resources.oxygenCylinders.used %>" readonly />
     </div>
 
     <!-- Ventilators -->
@@ -212,18 +199,17 @@ a:hover {
         <input type="number" name="ventilator_total" value="<%= resources.ventilators.total %>" />
         <label>Used</label>
         <input type="number" name="ventilator_used" value="<%= resources.ventilators.used %>" />
-        <label>Available</label>
-        <input type="number" value="<%= resources.ventilators.total - resources.ventilators.used %>" readonly />
     </div>
-
+<button type="submit">Save Data</button>
 </form>
 
 </div>
 
+
 <!-- 🩸 Blood Bank Section -->
 <div class="section-card">
 <h2>Blood Bank</h2>
-<form action="/admin/update-resources" method="POST">
+<form action="/admin/update-blood-stock" method="POST">
 
     <div class="resources-grid">
     <% Object.keys(resources.bloodStock).forEach(group => { %>
@@ -237,6 +223,7 @@ a:hover {
     <button type="submit">Save Blood Data</button>
 </form>
 </div>
+
 
 <!-- 👨‍⚕️ Doctors Section -->
 <div class="section-card">
