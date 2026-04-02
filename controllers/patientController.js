@@ -138,8 +138,8 @@ exports.getAvailableSlots = async (req, res) => {
 const transporter=nodemailer.createTransport({
   service:'gmail',
   auth:{
-    user:'dobhaal2005@gmail.com',
-    pass:'eqrp bivz btry chjm'
+    user: process.env.EMAIL_USER ,
+    pass: process.env.EMAIL_PASS
   }
 })
 
@@ -273,7 +273,7 @@ console.log("✅ New Token Created:", newToken);
 
 
 if(patient && patient.email){
-  const mailOptions={from:'dobhaal2005@gmail.com',
+  const mailOptions={from:'dobhaal070105@gmail.com',
 to:patient.email,
 subject:'Your OPD Token Confirmation - MediBridge',
 html: `
@@ -287,7 +287,8 @@ html: `
       <p><b>Mode:</b> ${mode}</p>
       <hr>
       <p>Thank you for booking with MediBridge! Please arrive 10 mins before your slot.</p>
-    `
+    `,
+    
   };
 
   try {
@@ -324,7 +325,7 @@ if (io) {
         Date: ${selected}<br>
         Time: ${timeSlot}<br>
         Mode: ${mode}
-      `
+      `,department: department
     });
 
   } catch (err) {

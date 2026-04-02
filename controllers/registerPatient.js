@@ -87,7 +87,7 @@ if (!req.session.emailVerified || req.session.registerEmail !== email) {
     req.session.isDonor = createPatient.isDonor;
 
     // redirect to login page after successful register
-    return res.render("login");
+    return res.render("login", { error: null });
 
   } catch (err) {
     console.error("registerPatient error:", err);

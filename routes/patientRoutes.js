@@ -95,7 +95,7 @@ router.post("/send-otp", async (req, res) => {
  
 
     await transporter.sendMail({
-      from: "dobhaal2005@gmail.com",
+      from: "dobhaal070105@gmail.com",
       to: email,
       subject: "MediBridge Email Verification OTP",
       html: `

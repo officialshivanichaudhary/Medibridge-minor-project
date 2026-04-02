@@ -44,8 +44,8 @@ function requireLogin(req, res, next) {
 }
 
 // 🔐 Hardcoded pharmacy login credentials
-const ADMIN_EMAIL = "pharmacy@gmail.com";
-const ADMIN_PASSWORD = "123456";
+const ADMIN_EMAIL = process.env.PHARMA_EMAIL;
+const ADMIN_PASSWORD = process.env.PHARMA_PASSWORD;
 
 // 🧑‍⚕ GET: Login page
 app.get("/login", (req, res) => {
@@ -96,4 +96,4 @@ app.get("/logout", (req, res) => {
 
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(🚀 Server running on port ${PORT}));
+app.listen(PORT, () => console.log('🚀 Server running on port ${PORT}'));

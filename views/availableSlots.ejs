@@ -137,7 +137,7 @@ a.btn:hover {
         <form method="POST" action="/book-token" onsubmit="return askProblem(this)" style="display:inline;">
 
           <!-- REQUIRED BACKEND FIELDS -->
-          <input type="hidden" name="department" value="<%= day.doctor.department %>">
+          <input type="hidden" name="department" value="<%= departmentName %>">
           <input type="hidden" name="patientId" value="<%= patientId %>">
           <input type="hidden" name="selectedDate" value="<%= day.date %>">
           <input type="hidden" name="timeSlot" value="<%= slot.time %>">

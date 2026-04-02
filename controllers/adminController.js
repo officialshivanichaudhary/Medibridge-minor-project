@@ -11,8 +11,8 @@ const pickDoctorForDay = require("../utils/pickDoctor");
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "dobhaal2005@gmail.com",
-    pass: "eqrp bivz btry chjm"
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
   }
 });
 
@@ -113,22 +113,57 @@ exports.updateHospitalResources = async (req, res) => {
 
 // ================= UPDATE BLOOD STOCK =================
 exports.updateBloodStock = async (req, res) => {
+  console.log("updateBloodStock hit");
   try {
     let resources = await Resource.findOne() || new Resource();
     const bloodGroups = ["A+","A-","B+","B-","AB+","AB-","O+","O-"];
 
-    bloodGroups.forEach(bg => {
-      resources.bloodStock[bg] = req.body[`blood_${bg}`] || 0;
-    });
+    for (let bg of bloodGroups) {
+      const value = req.body[`blood_${bg}`] || 0;
+      resources.bloodStock[bg] = value;
+
+      if (value < 5) {
+        console.log("Low blood:", bg);
+
+        const donors = await Donor.find({ bloodGroup: bg });
+        console.log("Donors:", donors);
+
+        const emails = donors
+          .map(d => d.email)
+          .filter(e => e); 
+
+        if (emails.length > 0) {
+          console.log("Sending email to:", emails);
+
+          try {
+            const info = await transporter.sendMail({
+  from: "dobhaal070205@gmail.com" ,
+  to: "YOUR_EMAIL@gmail.com",
+  subject: "TEST",
+  text: "check"
+});
+        
+
+            console.log("✅ Blood email sent:", info.response);
+
+          } catch (mailErr) {
+            console.log("❌ Blood mail error:", mailErr);
+          }
+
+        } else {
+          console.log("❌ No valid donor emails for", bg);
+        }
+      }
+    }
 
     await resources.save();
     res.redirect("/admin/dashboard");
+
   } catch (err) {
     console.error("Blood update error:", err);
     res.send("Error updating blood stock");
   }
 };
-
 // ================= DOCTORS CRUD =================
 exports.viewDoctors = async (req, res) => {
   const doctors = await Doctor.find();
@@ -277,6 +312,7 @@ exports.markLeave = async (req, res) => {
         error: "Please select a leave date.", success: null
       });
     }
+
     if (leaveDate < todayStr) {
       return res.render("doctorLeave", {
         doctor, todayStr, todayDay, upcomingLeaves,
@@ -284,12 +320,78 @@ exports.markLeave = async (req, res) => {
       });
     }
 
+    // ✅ Save leave
     await Leave.findOneAndUpdate(
       { doctor: doctor._id, date: leaveDate },
       { doctor: doctor._id, date: leaveDate, reason: reason || "" },
       { upsert: true, new: true }
     );
 
+    // 🔥 STEP 1: find affected tokens
+    const tokens = await Token.find({
+      "doctor.id": doctor._id,
+      date: new Date(leaveDate).toISOString().split("T")[0]
+    });
+
+    const dayName = new Date(leaveDate).toLocaleDateString("en-US", { weekday: "long" });
+
+    // 🔥 STEP 2: loop tokens
+    for (let t of tokens) {
+
+      // pick new doctor
+      let newDoctor = await pickDoctorForDay(
+        t.doctor.department,
+        dayName,
+        leaveDate
+      );
+
+      // ❗ FIX: ensure same doctor reassign na ho
+      if (newDoctor && newDoctor._id.toString() === doctor._id.toString()) {
+        // try to find another doctor manually
+        const otherDoctors = await Doctor.find({
+          department: t.doctor.department,
+          _id: { $ne: doctor._id }
+        });
+
+        newDoctor = otherDoctors[0] || null;
+      }
+
+      if (!newDoctor) continue;
+
+      // 🔁 update token doctor
+      t.doctor = {
+        id: newDoctor._id,
+        name: newDoctor.name,
+        department: newDoctor.department
+      };
+
+      await t.save();
+
+      // 🔍 get patient
+      if (!t.patientId) continue; // skip offline tokens
+
+      const patient = await Patient.findById(t.patientId);
+
+      // 📩 send email
+      if (patient && patient.email) {
+        console.log("Token:", t);
+console.log("PatientId:", t.patientId);
+        try {
+          await transporter.sendMail({
+            to: patient.email,
+            subject: "Doctor Reassigned - MediBridge",
+            text: `Due to emergency, your doctor has been changed to ${newDoctor.name} (${newDoctor.department}) for date ${leaveDate}.`
+          });
+
+          console.log("Reassign mail sent to:", patient.email);
+
+        } catch (err) {
+          console.log("Mail error:", err);
+        }
+      }
+    }
+
+    // ✅ update doctor leave list
     if (!doctor.onLeaveDates) doctor.onLeaveDates = [];
     if (!doctor.onLeaveDates.includes(leaveDate)) {
       doctor.onLeaveDates.push(leaveDate);

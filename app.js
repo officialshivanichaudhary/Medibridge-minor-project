@@ -65,8 +65,8 @@ app.get("/pharmacy/login", (req, res) => {
 });
 
 // Login Submit
-const ADMIN_EMAIL = "pharmacy@gmail.com";
-const ADMIN_PASSWORD = "123456";
+const ADMIN_EMAIL = process.env.PHARMA_EMAIL;
+const ADMIN_PASSWORD = process.env.PHARMA_PASSWORD;
 
 app.post("/pharmacy/login", (req, res) => {
   const { email, password } = req.body;

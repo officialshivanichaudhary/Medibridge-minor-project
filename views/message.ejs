@@ -80,7 +80,7 @@ button:hover {
   <script>
     function goBack() {
       // redirect back to slots with department name
-      const dept = "<%= typeof doctor !== 'undefined' ? doctor.department : 'Cardiology' %>";
+    const dept = "<%= department %>";
       window.location.href = `/get-available-slots?department=${dept}`;
     }
   </script>
