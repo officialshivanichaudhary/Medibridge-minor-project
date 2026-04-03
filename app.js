@@ -65,16 +65,23 @@ app.get("/pharmacy/login", (req, res) => {
 });
 
 // Login Submit
-const ADMIN_EMAIL = process.env.PHARMA_EMAIL;
-const ADMIN_PASSWORD = process.env.PHARMA_PASSWORD;
+const PHARMACY_EMAIL = process.env.PHARMACY_EMAIL;
+const PHARMACY_PASSWORD = process.env.PHARMACY_PASSWORD;
 
 app.post("/pharmacy/login", (req, res) => {
   const { email, password } = req.body;
-  if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+
+  if (
+    email === process.env.PHARMACY_EMAIL &&
+    password === process.env.PHARMACY_PASSWORD
+  ) {
     req.session.pharmacyUser = email;
     return res.redirect("/pharmacy/all");
   }
-  res.render("pharmacyLogin", { error: "Invalid email or password" });
+
+  res.render("pharmacyLogin", {
+    error: "Invalid email or password"
+  });
 });
 
 // Logout

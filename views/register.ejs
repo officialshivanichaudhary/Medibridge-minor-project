@@ -273,6 +273,15 @@ async function sendOTP() {
     body: JSON.stringify({ email })
   });
   const data = await res.json();
+
+if (!data.success) {
+  alert(data.message);
+
+  if (data.message.includes("already")) {
+    window.location.href = "/login";
+  }
+  return;
+}
   alert(data.message);
 }
 

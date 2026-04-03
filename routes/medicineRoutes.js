@@ -6,7 +6,7 @@ const MedicineHistory = require("../models/medicineHistoryModel");
 
 
 
-// ✅ GET: Show all medicines (Dashboard)
+//  GET: Show all medicines (Dashboard)
 router.get("/all", async (req, res) => {
   try {
     const medicines = await Medicine.find().sort({ expiryDate: 1 });
@@ -20,7 +20,7 @@ router.get("/all", async (req, res) => {
   }
 });
 
-// ✅ GET: Add Medicine Page (Form Page)
+// GET: Add Medicine Page (Form Page)
 router.get("/add", (req, res) => {
   res.render("addMedicine"); // ✅ separate form page, not medicines.ejs
 });

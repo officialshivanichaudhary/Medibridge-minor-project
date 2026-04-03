@@ -24,15 +24,19 @@ exports.adminLoginPage = (req, res) => res.render("adminLogin");
 
 exports.adminLogin = async (req, res) => {
   const { email, password } = req.body;
-  const admin = await Admin.findOne({ email, password });
 
-  if (!admin) {
-    return res.render("adminLogin", { error: "Invalid email or password" });
+  // .env based login
+  if (
+    email === process.env.ADMIN_EMAIL &&
+    password === process.env.ADMIN_PASSWORD
+  ) {
+    req.session.isAdmin = true;
+    return res.redirect("/admin/dashboard");
   }
 
-  req.session.isAdmin = true;
-  req.session.adminId = admin._id;
-  res.redirect("/admin/dashboard");
+  return res.render("adminLogin", {
+    error: "Invalid email or password"
+  });
 };
 
 // ================= DASHBOARD =================
@@ -137,6 +141,7 @@ exports.updateBloodStock = async (req, res) => {
 
           try {
             const info = await transporter.sendMail({
+              
   from: "dobhaal070205@gmail.com" ,
   to: "YOUR_EMAIL@gmail.com",
   subject: "TEST",
@@ -332,11 +337,24 @@ exports.markLeave = async (req, res) => {
       "doctor.id": doctor._id,
       date: new Date(leaveDate).toISOString().split("T")[0]
     });
+let filteredTokens = tokens;
 
+// 🔥 fallback (IMPORTANT)
+if (tokens.length === 0) {
+  const allTokens = await Token.find({
+    date: new Date(leaveDate).toISOString().split("T")[0]
+  });
+
+  filteredTokens = allTokens.filter(t =>
+    t.doctor &&
+    t.doctor.id &&
+    t.doctor.id.toString() === doctor._id.toString()
+  );
+}
     const dayName = new Date(leaveDate).toLocaleDateString("en-US", { weekday: "long" });
 
     // 🔥 STEP 2: loop tokens
-    for (let t of tokens) {
+    for (let t of filteredTokens) {
 
       // pick new doctor
       let newDoctor = await pickDoctorForDay(
@@ -380,7 +398,7 @@ console.log("PatientId:", t.patientId);
           await transporter.sendMail({
             to: patient.email,
             subject: "Doctor Reassigned - MediBridge",
-            text: `Due to emergency, your doctor has been changed to ${newDoctor.name} (${newDoctor.department}) for date ${leaveDate}.`
+            text: `Due to emergency, your doctor has been changed to ${newDoctor.name} (${newDoctor.department}) for date ${leaveDate}. Your token remains the same.`
           });
 
           console.log("Reassign mail sent to:", patient.email);

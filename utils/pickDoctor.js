@@ -25,7 +25,10 @@ module.exports = async function pickDoctorForDay(department, dayName, dateStr) {
     const available = opdDoctors.filter(
       d => !leaveSet.has(d._id.toString())
     );
-    if (!available.length) return null;
+  if (!available.length) {
+  // 🔥 fallback: kisi bhi doctor ko de do (same department)
+  return opdDoctors[0] || doctors[0];
+}
 
     // 5️⃣ 🔥 ROTATION LOGIC (KEY FIX)
     const dayNumber = new Date(dateStr).getDate(); // 1–31

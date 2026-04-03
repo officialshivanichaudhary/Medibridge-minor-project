@@ -86,8 +86,18 @@ router.get("/profile", async (req, res) => {
 
 router.post("/send-otp", async (req, res) => {
   try {
+    const Patient = require("../databases/patients"); 
     const { email } = req.body;
+const existingUser = await Patient.findOne({
+  email: { $regex: new RegExp("^" + email + "$", "i") }
+});
 
+if (existingUser) {
+  return res.json({
+    success: false,
+    message: "You already have an account. Please login."
+  });
+}
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expires = Date.now() + 5 * 60 * 1000;
 

@@ -67,7 +67,16 @@ exports.getAvailableSlots = async (req, res) => {
       const dateStr = toDateString(dayObj);
 
       // doctor for this day
-      const doctor = await pickDoctorForDay(dept, dayName, dateStr);
+      let doctor = await pickDoctorForDay(dept, dayName, dateStr);
+     
+const tokensForDay = await Token.find({
+  date: dateStr,
+  "doctor.department": department
+});
+
+if (tokensForDay.length > 0) {
+  doctor = tokensForDay[0].doctor; // reassigned doctor
+}
      if (!doctor) {
   // show slots but no booking allowed
   availableDays.push({
@@ -95,10 +104,9 @@ exports.getAvailableSlots = async (req, res) => {
 
       // get booked tokens
       const bookedTokens = await Token.find({
-        "doctor.id": doctor._id,
-        date: dateStr
-      });
-
+  date: dateStr,
+  "doctor.department": department
+});
       const bookedTimes = bookedTokens.map(t =>
         (t.timeSlot || t.estimatedTime).trim().toUpperCase()
       );
