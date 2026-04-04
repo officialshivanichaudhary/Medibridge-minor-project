@@ -143,9 +143,17 @@ exports.updateBloodStock = async (req, res) => {
             const info = await transporter.sendMail({
               
   from: "dobhaal070205@gmail.com" ,
-  to: "YOUR_EMAIL@gmail.com",
-  subject: "TEST",
-  text: "check"
+  to: emails,
+  subject:  `Urgent: Blood Required (${bg})`,
+  html: `
+  <h2>🩸 Urgent Blood Requirement</h2>
+  <p>Dear Donor,</p>
+  <p>We currently have a <strong>critical need</strong> for blood group <strong>${bg}</strong>.</p>
+  <p>If you are available to donate, your help can make a life-saving difference.</p>
+  <p>We sincerely appreciate your support 🙏</p>
+  <br/>
+  <p><strong>— MediBridge Team</strong></p>
+`
 });
         
 
