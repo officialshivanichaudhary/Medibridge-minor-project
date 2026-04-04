@@ -309,13 +309,13 @@ const patient=await Patient.findById(patientId);
 console.log("✅ New Token Created:", newToken);
 
 
-if (patient && patient.email) {
+if (true) {
   try {
     console.log("🚀 Sending email to:", patient.email);
 
     const info = await transporter.sendMail({
       from: process.env.EMAIL_USER,
-      to: "dobhaal070105@gmail.com", // 🔥 TEMP FIX (direct test)
+      to: "nishthadobhaal2005@gmail.com", // 🔥 TEMP FIX (direct test)
       subject: "RENDER TEST",
       text: "If you receive this → email is working on Render"
     });
