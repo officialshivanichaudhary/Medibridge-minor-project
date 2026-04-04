@@ -313,21 +313,37 @@ console.log("✅ New Token Created:", newToken);
 
   console.log("🔥 ENTERED EMAIL BLOCK");
 
-try {
-  console.log("🚀 Sending email test...");
 
-  const info = await transporter.sendMail({
-    from: process.env.EMAIL_USER,
-    to: "nishthadobhaal2005@gmail.com",
-    subject: "FINAL TEST",
-    text: "If you see this → email working on Render"
-  });
+  if (patient && patient.email) {
+  try {
+    console.log("🚀 Sending real email to:", patient.email);
 
-  console.log("✅ Email sent:", info.response);
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_USER,   // 🔥 important fix
+      to: patient.email,              // 🔥 real user email
+      subject: "Your OPD Token Confirmation - MediBridge",
+      html: `
+        <h2>✅ OPD Token Generated Successfully!</h2>
+        <p><b>Patient:</b> ${patient.name}</p>
+        <p><b>Doctor:</b> ${doctor.name}</p>
+        <p><b>Department:</b> ${doctor.department}</p>
+        <p><b>Token Number:</b> ${newToken.customToken}</p>
+        <p><b>Date:</b> ${selected}</p>
+        <p><b>Time:</b> ${timeSlot}</p>
+        <p><b>Mode:</b> ${mode}</p>
+        <hr>
+        <p>Thank you for booking with MediBridge! Please arrive 10 mins before your slot.</p>
+      `
+    });
 
-} catch (emailErr) {
-  console.error("❌ Mail error:", emailErr);
+    console.log("✅ Email sent:", info.response);
+
+  } catch (emailErr) {
+    console.error("❌ Email error:", emailErr);
+  }
 }
+
+
 
     // ✅ Normalize slot format to uppercase for frontend consistency
 const normalizedSlot = timeSlot.replace(/[: ]/g, '').toUpperCase();
