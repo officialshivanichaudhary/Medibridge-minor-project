@@ -309,34 +309,23 @@ const patient=await Patient.findById(patientId);
 console.log("✅ New Token Created:", newToken);
 
 
-if(patient && patient.email){
-  const mailOptions={from:'dobhaal070105@gmail.com',
-to:patient.email,
-subject:'Your OPD Token Confirmation - MediBridge',
-html: `
-      <h2>✅ OPD Token Generated Successfully!</h2>
-      <p><b>Patient:</b> ${patient.name}</p>
-      <p><b>Doctor:</b> ${doctor.name}</p>
-      <p><b>Department:</b> ${doctor.department}</p>
-      <p><b>Token Number:</b> ${newToken.customToken}</p>
-      <p><b>Date:</b> ${selected}</p>
-      <p><b>Time:</b> ${timeSlot}</p>
-      <p><b>Mode:</b> ${mode}</p>
-      <hr>
-      <p>Thank you for booking with MediBridge! Please arrive 10 mins before your slot.</p>
-    `,
-    
-  };
-
+if (patient && patient.email) {
   try {
-    await transporter.sendMail(mailOptions);
-    console.log(`📩 Email sent to ${patient.email}`);
+    console.log("🚀 Sending email to:", patient.email);
+
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: "dobhaal070105@gmail.com", // 🔥 TEMP FIX (direct test)
+      subject: "RENDER TEST",
+      text: "If you receive this → email is working on Render"
+    });
+
+    console.log("✅ Email sent:", info.response);
+
   } catch (emailErr) {
     console.error("❌ Failed to send email:", emailErr);
   }
 }
-
-
 
     // ✅ Normalize slot format to uppercase for frontend consistency
 const normalizedSlot = timeSlot.replace(/[: ]/g, '').toUpperCase();
