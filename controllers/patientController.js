@@ -306,25 +306,27 @@ const newToken = await Token.create({
 const Patient=require('../databases/patients');
 const patient=await Patient.findById(patientId);
 
+console.log("🔥 DEBUG PATIENT:", patient);
 console.log("✅ New Token Created:", newToken);
 
 
-if (true) {
-  try {
-    console.log("🚀 Sending email to:", patient.email);
 
-    const info = await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: "nishthadobhaal2005@gmail.com", // 🔥 TEMP FIX (direct test)
-      subject: "RENDER TEST",
-      text: "If you receive this → email is working on Render"
-    });
+  console.log("🔥 ENTERED EMAIL BLOCK");
 
-    console.log("✅ Email sent:", info.response);
+try {
+  console.log("🚀 Sending email test...");
 
-  } catch (emailErr) {
-    console.error("❌ Failed to send email:", emailErr);
-  }
+  const info = await transporter.sendMail({
+    from: process.env.EMAIL_USER,
+    to: "nishthadobhaal2005@gmail.com",
+    subject: "FINAL TEST",
+    text: "If you see this → email working on Render"
+  });
+
+  console.log("✅ Email sent:", info.response);
+
+} catch (emailErr) {
+  console.error("❌ Mail error:", emailErr);
 }
 
     // ✅ Normalize slot format to uppercase for frontend consistency
