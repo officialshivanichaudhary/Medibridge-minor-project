@@ -98,7 +98,7 @@ router.get("/become", async (req, res) => {
 
 // Send thank-you email
     await transporter.sendMail({
-        from: "dobhaal070105@gmail.com",
+        from: process.env.EMAIL_USER,
         to: patient.email,
         subject: "Thank You for Becoming a Blood Donor ❤️",
         html: `

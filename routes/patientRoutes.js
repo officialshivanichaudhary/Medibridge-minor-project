@@ -105,7 +105,7 @@ if (existingUser) {
  
 
     await transporter.sendMail({
-      from: "dobhaal070105@gmail.com",
+      from: process.env.EMAIL_USER,
       to: email,
       subject: "MediBridge Email Verification OTP",
       html: `
