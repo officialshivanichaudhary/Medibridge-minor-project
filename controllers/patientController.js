@@ -67,16 +67,28 @@ exports.getAvailableSlots = async (req, res) => {
       const dateStr = toDateString(dayObj);
 
       // doctor for this day
-      let doctor = await pickDoctorForDay(dept, dayName, dateStr);
-     
-const tokensForDay = await Token.find({
-  date: dateStr,
-  "doctor.department": department
-});
+    const doctors = await Doctor.find({ department: dept });
 
-if (tokensForDay.length > 0) {
-  doctor = tokensForDay[0].doctor; // reassigned doctor
+
+const leaves = await Leave.find({ date: dateStr });
+const leaveSet = new Set(leaves.map(l => String(l.doctor)));
+
+const availableDoctors = doctors.filter(
+  d => !leaveSet.has(String(d._id))
+);
+
+let doctor = null;
+
+
+if (availableDoctors.length > 0) {
+  const dayNumber = new Date(dateStr).getDate();
+  doctor = availableDoctors[dayNumber % availableDoctors.length];
+} else {
+
+  doctor = null;
 }
+   
+
      if (!doctor) {
   // show slots but no booking allowed
   availableDays.push({
@@ -105,11 +117,12 @@ if (tokensForDay.length > 0) {
       // get booked tokens
       const bookedTokens = await Token.find({
   date: dateStr,
-  "doctor.department": department
+  "doctor.id": doctor._id,
 });
-      const bookedTimes = bookedTokens.map(t =>
-        (t.timeSlot || t.estimatedTime).trim().toUpperCase()
-      );
+     
+const bookedTimes = bookedTokens.map(t =>
+  (t.timeSlot || t.estimatedTime || "").trim().toUpperCase()
+);
 
       const slotStatus = slots.map(time => ({
         time,
@@ -120,7 +133,7 @@ if (tokensForDay.length > 0) {
         date: dateStr,
         dayName,
         doctor: {
-          id: doctor._id,
+          id: doctor._id? doctor._id.toString() : "",
           name: doctor.name,
           department: doctor.department
         },
@@ -161,17 +174,27 @@ exports.bookToken = async (req, res) => {
     const { department, patientId, selectedDate, timeSlot, mode = 'Online', problem } = req.body;
 
     if (!department || !patientId || !selectedDate || !timeSlot) {
-      return res.render('message', { msg: '⚠️ Missing required fields.' });
+      return res.render('message', { msg: '⚠️ Missing required fields.' ,
+  department: department || "General"});
     }
 
     const dept = department.trim();
+    
+if (!req.body.doctorId || req.body.doctorId.trim() === "") {
+  return res.render('message', {
+    msg: '❌ Doctor not available for this slot.',
+    department: req.body.department || "General"
+  });
+}
 
     // find doctor case-insensitively
    // 🔥 Always pick correct doctor from hidden input
 const doctor = await Doctor.findById(req.body.doctorId);
 
 if (!doctor) {
-  return res.render('message', { msg: '❌ Doctor not found.' });
+  return res.render('message', { msg: '❌ Doctor not found.',
+    department: department || "General"
+   });
 }
 
 
@@ -183,12 +206,15 @@ if (!doctor) {
     // allow booking only from tomorrow through next 7 days
     const tomorrow = toDateString(addDays(new Date(), 1));
     if (!(selected >= tomorrow && selected <= maxDay)) {
-      return res.render('message', { msg: '⚠️ You can only book for tomorrow up to 7 days ahead.' });
+      return res.render('message', { msg: '⚠️ You can only book for tomorrow up to 7 days ahead.' ,
+  department: department || "General"
+      });
     }
 
     // ONLINE only allowed (we're enforcing online bookings only for future days per your policy)
     if (mode === 'Online' && selected === today) {
-      return res.render('message', { msg: '⚠️ Same-day online booking is closed. Visit hospital for offline token.' });
+      return res.render('message', { msg: '⚠️ Same-day online booking is closed. Visit hospital for offline token.' ,
+  department: department || "General"});
     }
 
     // check if slot already booked
@@ -197,7 +223,8 @@ if (!doctor) {
       date: selected,
       timeSlot
     });
-    if (existing) return res.render('message', { msg: '🔴 This slot is already booked!' });
+    if (existing) return res.render('message', { msg: '🔴 This slot is already booked!',
+  department: department || "General" });
 
     // quotas
     const totalTokens = await Token.countDocuments({ 'doctor.id': doctor._id, date: selected });
@@ -207,10 +234,12 @@ if (!doctor) {
     const onlineLimit = doctor.onlineBookingLimit || (doctor.maxPatientsPerDay - offlineReserve);
 
     if (mode === 'Online' && onlineTokens >= onlineLimit) {
-      return res.render('message', { msg: '⚠️ Online slots full. Please visit hospital for offline OPD token.' });
+      return res.render('message', { msg: '⚠️ Online slots full. Please visit hospital for offline OPD token.',
+  department: department || "General" });
     }
     if (totalTokens >= doctor.maxPatientsPerDay) {
-      return res.render('message', { msg: '⚠️ All slots (online + offline) are filled for this doctor.' });
+      return res.render('message', { msg: '⚠️ All slots (online + offline) are filled for this doctor.',
+  department: department || "General" });
     }
 
     // Fetch the last token for this department and date
@@ -338,6 +367,8 @@ if (io) {
 
   } catch (err) {
     console.error('Error booking token:', err);
-    return res.render('message', { msg: '🚫 Failed to book token.' });
+    return res.render('message', { msg: '🚫 Failed to book token.',
+      department: req.body.department || "General"
+     });
   }
 };

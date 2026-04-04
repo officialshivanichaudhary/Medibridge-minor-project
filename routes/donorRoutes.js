@@ -117,7 +117,7 @@ router.get("/become", async (req, res) => {
     const THRESHOLD = 4;
 
     if (units > 0 && units <= THRESHOLD) {
-      await notifyDonorsLowStock(patient.bloodGroup, units);
+     
     }
   req.session.donorSuccess = "🎉 Thank you for becoming a Blood Donor!";
      return res.redirect("/");   // ✅ Redirect to home (NOT JSON)

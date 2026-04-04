@@ -356,24 +356,18 @@ if (tokens.length === 0) {
     // 🔥 STEP 2: loop tokens
     for (let t of filteredTokens) {
 
-      // pick new doctor
-      let newDoctor = await pickDoctorForDay(
-        t.doctor.department,
-        dayName,
-        leaveDate
-      );
+     
+const doctors = await Doctor.find({
+  department: t.doctor.department,
+  _id: { $ne: doctor._id }
+});
 
-      // ❗ FIX: ensure same doctor reassign na ho
-      if (newDoctor && newDoctor._id.toString() === doctor._id.toString()) {
-        // try to find another doctor manually
-        const otherDoctors = await Doctor.find({
-          department: t.doctor.department,
-          _id: { $ne: doctor._id }
-        });
+if (doctors.length === 0) continue;
 
-        newDoctor = otherDoctors[0] || null;
-      }
+const index = Math.floor(Math.random() * doctors.length);
+const newDoctor = doctors[index];
 
+ 
       if (!newDoctor) continue;
 
       // 🔁 update token doctor
@@ -383,6 +377,7 @@ if (tokens.length === 0) {
         department: newDoctor.department
       };
 
+      t.isReassigned = true;
       await t.save();
 
       // 🔍 get patient

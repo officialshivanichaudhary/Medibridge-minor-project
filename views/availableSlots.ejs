@@ -129,37 +129,44 @@ a.btn:hover {
     </h3>
 
     <div class="slots">
+<% day.slots.forEach(slot => { 
+  const cleanId = slot.time.replace(/[: ]/g, '').toUpperCase(); 
+%>
 
-      <% day.slots.forEach(slot => { 
-        const cleanId = slot.time.replace(/[: ]/g, '').toUpperCase(); 
-      %>
+  <% if (day.doctor && day.doctor.id) { %>
 
-        <form method="POST" action="/book-token" onsubmit="return askProblem(this)" style="display:inline;">
+    <form method="POST" action="/book-token" style="display:inline;">
+      
+      <input type="hidden" name="department" value="<%= departmentName %>">
+      <input type="hidden" name="patientId" value="<%= patientId %>">
+      <input type="hidden" name="selectedDate" value="<%= day.date %>">
+      <input type="hidden" name="timeSlot" value="<%= slot.time %>">
+      
+      <!-- 🔥 IMPORTANT FIX -->
+      <input type="hidden" name="doctorId" value="<%= day.doctor.id %>">
 
-          <!-- REQUIRED BACKEND FIELDS -->
-          <input type="hidden" name="department" value="<%= departmentName %>">
-          <input type="hidden" name="patientId" value="<%= patientId %>">
-          <input type="hidden" name="selectedDate" value="<%= day.date %>">
-          <input type="hidden" name="timeSlot" value="<%= slot.time %>">
-          <input type="hidden" name="doctorId" value="<%= day.doctor.id %>">
+      <input type="hidden" name="mode" value="Online">
+      <input type="hidden" name="problem" value="">
 
-          <!-- default mode -->
-          <input type="hidden" name="mode" value="Online">
+      <button 
+        class="slot-btn <%= slot.booked ? 'booked' : 'available' %>"
+        <%= slot.booked ? 'disabled' : '' %>
+      >
+        <%= slot.time %>
+      </button>
 
-          <!-- problem prompt -->
-          <input type="hidden" name="problem" value="">
+    </form>
 
-          <button 
-            id="slot-<%= day.date.replace(/-/g, '') %>-<%= cleanId %>"
-            class="slot-btn <%= slot.booked ? 'booked' : 'available' %>"
-            <%= slot.booked ? 'disabled' : '' %>
-          >
-            <%= slot.time %>
-          </button>
+  <% } else { %>
 
-        </form>
+    <!-- ❌ doctor nahi hai → disabled -->
+    <button class="slot-btn booked" disabled>
+      <%= slot.time %>
+    </button>
 
-      <% }) %>
+  <% } %>
+
+<% }) %>
 
     </div>
     <hr>
